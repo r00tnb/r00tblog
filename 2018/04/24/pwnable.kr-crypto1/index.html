@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这虽然不是一道二进制的题目，但是也有足够的pwn味道。 分析题目是用了python写的b/s结构，代码逻辑简单。client.py12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667#!/usr/b">
+<meta name="keywords" content="pwnable.kr,PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr-crypto1">
+<meta property="og:url" content="http://yoursite.com/2018/04/24/pwnable.kr-crypto1/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言这虽然不是一道二进制的题目，但是也有足够的pwn味道。 分析题目是用了python写的b/s结构，代码逻辑简单。client.py12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667#!/usr/b">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:10:57.853Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.kr-crypto1">
+<meta name="twitter:description" content="前言这虽然不是一道二进制的题目，但是也有足够的pwn味道。 分析题目是用了python写的b/s结构，代码逻辑简单。client.py12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667#!/usr/b">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/24/pwnable.kr-crypto1/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.kr-crypto1 | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/24/pwnable.kr-crypto1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.kr-crypto1
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-04-24 13:21:27" itemprop="dateCreated datePublished" datetime="2018-04-24T13:21:27+08:00">2018-04-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:10:57" itemprop="dateModified" datetime="2018-08-04T15:10:57+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这虽然不是一道二进制的题目，但是也有足够的pwn味道。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>题目是用了python写的b/s结构，代码逻辑简单。<br><strong>client.py</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> os, sys</span><br><span class="line"><span class="keyword">import</span> xmlrpclib</span><br><span class="line">rpc = xmlrpclib.ServerProxy(<span class="string">"http://localhost:9100/"</span>)</span><br><span class="line"></span><br><span class="line">BLOCK_SIZE = <span class="number">16</span></span><br><span class="line">PADDING = <span class="string">'\x00'</span></span><br><span class="line">pad = <span class="keyword">lambda</span> s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * PADDING</span><br><span class="line">EncodeAES = <span class="keyword">lambda</span> c, s: c.encrypt(pad(s)).encode(<span class="string">'hex'</span>)</span><br><span class="line">DecodeAES = <span class="keyword">lambda</span> c, e: c.decrypt(e.decode(<span class="string">'hex'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># server's secrets</span></span><br><span class="line">key = <span class="string">'erased. but there is something on the real source code'</span></span><br><span class="line">iv = <span class="string">'erased. but there is something on the real source code'</span></span><br><span class="line">cookie = <span class="string">'erased. but there is something on the real source code'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># guest / 8b465d23cb778d3636bf6c4c5e30d031675fd95cec7afea497d36146783fd3a1</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sanitize</span><span class="params">(arg)</span>:</span></span><br><span class="line">	<span class="keyword">for</span> c <span class="keyword">in</span> arg:</span><br><span class="line">		<span class="keyword">if</span> c <span class="keyword">not</span> <span class="keyword">in</span> <span class="string">'1234567890abcdefghijklmnopqrstuvwxyz-_'</span>:</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">AES128_CBC</span><span class="params">(msg)</span>:</span></span><br><span class="line">	cipher = AES.new(key, AES.MODE_CBC, iv)</span><br><span class="line">	<span class="keyword">return</span> EncodeAES(cipher, msg)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">request_auth</span><span class="params">(id, pw)</span>:</span></span><br><span class="line">	packet = <span class="string">'&#123;0&#125;-&#123;1&#125;-&#123;2&#125;'</span>.format(id, pw, cookie)</span><br><span class="line">	e_packet = AES128_CBC(packet)</span><br><span class="line">	<span class="keyword">print</span> <span class="string">'sending encrypted data (&#123;0&#125;)'</span>.format(e_packet)</span><br><span class="line">	sys.stdout.flush()</span><br><span class="line">	<span class="keyword">return</span> rpc.authenticate(e_packet)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	<span class="keyword">print</span> <span class="string">'---------------------------------------------------'</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">'-       PWNABLE.KR secure RPC login system        -'</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">'---------------------------------------------------'</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">''</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">'Input your ID'</span></span><br><span class="line">	sys.stdout.flush()</span><br><span class="line">	id = raw_input()</span><br><span class="line">	<span class="keyword">print</span> <span class="string">'Input your PW'</span></span><br><span class="line">	sys.stdout.flush()</span><br><span class="line">	pw = raw_input()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> sanitize(id) == <span class="keyword">False</span> <span class="keyword">or</span> sanitize(pw) == <span class="keyword">False</span>:</span><br><span class="line">		<span class="keyword">print</span> <span class="string">'format error'</span></span><br><span class="line">		sys.stdout.flush()</span><br><span class="line">		os._exit(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	cred = request_auth(id, pw)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> cred==<span class="number">0</span> :</span><br><span class="line">		<span class="keyword">print</span> <span class="string">'you are not authenticated user'</span></span><br><span class="line">		sys.stdout.flush()</span><br><span class="line">		os._exit(<span class="number">0</span>)</span><br><span class="line">	<span class="keyword">if</span> cred==<span class="number">1</span> :</span><br><span class="line">		<span class="keyword">print</span> <span class="string">'hi guest, login as admin'</span></span><br><span class="line">		sys.stdout.flush()</span><br><span class="line">		os._exit(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">print</span> <span class="string">'hi admin, here is your flag'</span></span><br><span class="line">	<span class="keyword">print</span> open(<span class="string">'flag'</span>).read()</span><br><span class="line">	sys.stdout.flush()</span><br></pre></td></tr></table></figure></p>
+<p><strong>server.py</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="keyword">import</span> xmlrpclib, hashlib</span><br><span class="line"><span class="keyword">from</span> SimpleXMLRPCServer <span class="keyword">import</span> SimpleXMLRPCServer</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="keyword">import</span> os, sys</span><br><span class="line"></span><br><span class="line">BLOCK_SIZE = <span class="number">16</span></span><br><span class="line">PADDING = <span class="string">'\x00'</span></span><br><span class="line">pad = <span class="keyword">lambda</span> s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * PADDING</span><br><span class="line">EncodeAES = <span class="keyword">lambda</span> c, s: c.encrypt(pad(s)).encode(<span class="string">'hex'</span>)</span><br><span class="line">DecodeAES = <span class="keyword">lambda</span> c, e: c.decrypt(e.decode(<span class="string">'hex'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># server's secrets</span></span><br><span class="line">key = <span class="string">'erased. but there is something on the real source code'</span></span><br><span class="line">iv = <span class="string">'erased. but there is something on the real source code'</span></span><br><span class="line">cookie = <span class="string">'erased. but there is something on the real source code'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">AES128_CBC</span><span class="params">(msg)</span>:</span></span><br><span class="line">	cipher = AES.new(key, AES.MODE_CBC, iv)</span><br><span class="line">	<span class="keyword">return</span> DecodeAES(cipher, msg).rstrip(PADDING)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">authenticate</span><span class="params">(e_packet)</span>:</span></span><br><span class="line">	packet = AES128_CBC(e_packet)</span><br><span class="line"></span><br><span class="line">	id = packet.split(<span class="string">'-'</span>)[<span class="number">0</span>]</span><br><span class="line">	pw = packet.split(<span class="string">'-'</span>)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> packet.split(<span class="string">'-'</span>)[<span class="number">2</span>] != cookie:</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>	<span class="comment"># request is not originated from expected server</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span> hashlib.sha256(id+cookie).hexdigest() == pw <span class="keyword">and</span> id == <span class="string">'guest'</span>:</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> hashlib.sha256(id+cookie).hexdigest() == pw <span class="keyword">and</span> id == <span class="string">'admin'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">server = SimpleXMLRPCServer((<span class="string">"localhost"</span>, <span class="number">9100</span>))</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Listening on port 9100..."</span></span><br><span class="line">server.register_function(authenticate, <span class="string">"authenticate"</span>)</span><br><span class="line">server.serve_forever()</span><br></pre></td></tr></table></figure></p>
+<p>分析代码可以知道，只有当<code>id=admin,pw=sha256(id+cookie)</code>时才能获得flag。然而我们不知道<code>cookie</code>的值，所以就无法计算出正确的<code>pw</code>。<br>从代码中可以看到，程序使用<code>aes128_cbc</code>的加密模式。做web的都知道，这种加密方式容易受到字节反转攻击，但是这里却无法使用，因为字节反转攻击需要响应中有解密出来的明文。但是这里，由于这种加密模式明文和密文的字节是一一对应的，并且在这道题目中<code>cookie</code>前面的字符数量可控制，所以可以找到一种方法来爆破出<code>cookie</code>的值。<br>具体方法是，控制要加密的明文中<code>cookie</code>前面的字符数量，使要爆破的字节刚好位于分组中的最后一组的最后一个字节。接下来爆破方法是，每次改变最后一个字节，并把客户端返回的对应分组的加密密文与没有改变时的加密密文对比，当相等时说明该字节就是对应的<code>cookie</code>字节。如此爆破下去直到找到完整的<code>cookie</code>。随后就计算正确的ID和PW即可。<br>下面是poc，但是要传到题目平台上去，不然会很慢。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(log_level=<span class="string">'error'</span>)</span><br><span class="line">cookie = <span class="string">''</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getRealEPack</span><span class="params">(ID,PW)</span>:</span></span><br><span class="line">	r = remote(<span class="string">'127.0.0.1'</span>,<span class="number">9006</span>)</span><br><span class="line">	r.recvuntil(<span class="string">'ID\n'</span>)</span><br><span class="line">	r.sendline(ID)</span><br><span class="line">	r.recvuntil(<span class="string">'PW\n'</span>)</span><br><span class="line">	r.sendline(PW)</span><br><span class="line">	s = r.recvline()</span><br><span class="line">	e_pack = s[s.find(<span class="string">'('</span>)+<span class="number">1</span>:<span class="number">-2</span>]</span><br><span class="line">	r.close()</span><br><span class="line">	<span class="keyword">return</span> e_pack</span><br><span class="line"></span><br><span class="line"><span class="comment">#get cookie</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">2</span>,<span class="number">100</span>):</span><br><span class="line">	pack = <span class="string">'-'</span>*(<span class="number">15</span>-i%<span class="number">16</span>)+<span class="string">'--'</span>+cookie</span><br><span class="line">	<span class="keyword">for</span> j <span class="keyword">in</span> <span class="string">'1234567890abcdefghijklmnopqrstuvwxyz-_!'</span>:</span><br><span class="line">		e_pack0 = getRealEPack(pack+j,<span class="string">''</span>)</span><br><span class="line">		e_pack1 = getRealEPack(<span class="string">'-'</span>*(<span class="number">15</span>-i%<span class="number">16</span>),<span class="string">''</span>)</span><br><span class="line">		<span class="keyword">if</span> e_pack0[:len(pack+j)*<span class="number">2</span>] == e_pack1[:len(pack+j)*<span class="number">2</span>]:</span><br><span class="line">			cookie += j</span><br><span class="line">			<span class="keyword">print</span> cookie</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		<span class="keyword">if</span> j == <span class="string">'!'</span>:</span><br><span class="line">			ID = <span class="string">'admin'</span></span><br><span class="line">			PW = hashlib.sha256(ID+cookie).hexdigest()</span><br><span class="line">			<span class="keyword">print</span> <span class="string">'ID: &#123;&#125;\nPW: &#123;&#125;'</span>.format(ID,PW)</span><br><span class="line">			exit(<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p>
+<p>运行后<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">fix@ubuntu:/tmp$ python 1.py</span><br><span class="line">y</span><br><span class="line">yo</span><br><span class="line">you</span><br><span class="line">you_</span><br><span class="line">you_w</span><br><span class="line">you_wi</span><br><span class="line">you_wil</span><br><span class="line">you_will</span><br><span class="line">you_will_</span><br><span class="line">you_will_n</span><br><span class="line">you_will_ne</span><br><span class="line">you_will_nev</span><br><span class="line">you_will_neve</span><br><span class="line">you_will_never</span><br><span class="line">you_will_never_</span><br><span class="line">you_will_never_g</span><br><span class="line">you_will_never_gu</span><br><span class="line">you_will_never_gue</span><br><span class="line">you_will_never_gues</span><br><span class="line">you_will_never_guess</span><br><span class="line">you_will_never_guess_</span><br><span class="line">you_will_never_guess_t</span><br><span class="line">you_will_never_guess_th</span><br><span class="line">you_will_never_guess_thi</span><br><span class="line">you_will_never_guess_this</span><br><span class="line">you_will_never_guess_this_</span><br><span class="line">you_will_never_guess_this_s</span><br><span class="line">you_will_never_guess_this_su</span><br><span class="line">you_will_never_guess_this_sug</span><br><span class="line">you_will_never_guess_this_suga</span><br><span class="line">you_will_never_guess_this_sugar</span><br><span class="line">you_will_never_guess_this_sugar_</span><br><span class="line">you_will_never_guess_this_sugar_h</span><br><span class="line">you_will_never_guess_this_sugar_ho</span><br><span class="line">you_will_never_guess_this_sugar_hon</span><br><span class="line">you_will_never_guess_this_sugar_hone</span><br><span class="line">you_will_never_guess_this_sugar_honey</span><br><span class="line">you_will_never_guess_this_sugar_honey_</span><br><span class="line">you_will_never_guess_this_sugar_honey_s</span><br><span class="line">you_will_never_guess_this_sugar_honey_sa</span><br><span class="line">you_will_never_guess_this_sugar_honey_sal</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_c</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_co</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_coo</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_cook</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_cooki</span><br><span class="line">you_will_never_guess_this_sugar_honey_salt_cookie</span><br><span class="line">ID: admin</span><br><span class="line">PW: fcf00f6fc7f66ffcfec02eaf69d30398b773fa9b2bc398f960784d60048cc503</span><br><span class="line">fix@ubuntu:/tmp$</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">root@kali:~/Desktop/<span class="built_in">test</span><span class="comment"># nc pwnable.kr 9006</span></span><br><span class="line">---------------------------------------------------</span><br><span class="line">-       PWNABLE.KR secure RPC login system        -</span><br><span class="line">---------------------------------------------------</span><br><span class="line"></span><br><span class="line">Input your ID</span><br><span class="line">admin</span><br><span class="line">Input your PW</span><br><span class="line">fcf00f6fc7f66ffcfec02eaf69d30398b773fa9b2bc398f960784d60048cc503</span><br><span class="line">sending encrypted data (05c4ccfd4880c92339b995c7754ec2e6567f2ed91d955cb7144c1b6037855db1b3a8525e74d30fd4505bb38c975b86f23d0e5aa23eed44b9beaa7e2195da93ba53cb08758a261ada5612245f49d25b81aa5a297aa5d555886073b17e2ed719b3607da6fbfe40b260a45485910404d69c818a2faedac7bb3a727cfbb53eab8406)</span><br><span class="line">hi admin, here is your flag</span><br><span class="line">byte to byte leaking against block cipher plaintext is fun!!</span><br><span class="line"></span><br><span class="line">root@kali:~/Desktop/<span class="built_in">test</span><span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>很有意思的一次pwn。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/14/pwnable.kr-rsa_calculator/" rel="next" title="pwnable.kr-rsa_calculator">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-rsa_calculator
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/11/pwnable.kr-cmd3/" rel="prev" title="pwnable.kr-cmd3">
+                pwnable.kr-cmd3 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

