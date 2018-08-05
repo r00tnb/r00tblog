@@ -3,6 +3,7 @@ title: pwnable.kr-echo2
 date: 2018-03-10 10:41:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言 
 这道题和上一题主逻辑一样，主要是漏洞不一样了，这道题考察格式化支付串漏洞和堆的释放后重用漏洞。

@@ -4,15 +4,15 @@
 
 # Site
 title: R00tnb's Blog
-subtitle:
-description:
+subtitle: 吾将上下而求索
+description: 努力学习网络安全技术，喜欢二进制，一直努力但进步甚微。
 author: r00tnb
-language:
+language: zh-CN
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: https://r00tnb.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -80,3 +80,4 @@ deploy:
   type: git
   repository: git@github.com:r00tnb/r00tnb.github.io.git
   branch: master
+

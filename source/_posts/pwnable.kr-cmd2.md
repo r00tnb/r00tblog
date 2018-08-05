@@ -3,6 +3,7 @@ title: pwnable.kr-cmd2
 date: 2018-01-28 14:35:22
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这和上一道题[pwnable.kr-cmd1](http://www.ktstartblog.top/index.php/archives/131/)相似，不过提升了难度，但总体还是很简单，适合我这样的新手。

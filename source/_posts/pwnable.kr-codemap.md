@@ -3,6 +3,7 @@ title: pwnable.kr-codemap
 date: 2018-02-07 12:53:12
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题当时理解了逻辑，但是不知道怎么编写调试用的自动化脚本还是参考了别人的写的代码。

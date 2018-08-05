@@ -3,6 +3,7 @@ title: pwnable.kr-fsb
 date: 2018-02-27 14:04:54
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这是一道考察`printf`格式化字符串漏洞利用的题目，总的来说很简单，但是我却花了很长时间，主要是我有点太马虎没仔细分析代码，笑哭。

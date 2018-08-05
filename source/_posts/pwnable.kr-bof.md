@@ -3,6 +3,7 @@ title: pwnable.kr-bof
 date: 2017-12-08 16:43:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 分析
 查看源码`bof.c`

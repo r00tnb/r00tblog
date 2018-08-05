@@ -3,6 +3,7 @@ title: pwnable.kr-leg
 date: 2018-01-14 16:56:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这是一道考察arm汇编的题目，很简单。

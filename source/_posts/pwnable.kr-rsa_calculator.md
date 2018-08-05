@@ -3,6 +3,7 @@ title: pwnable.kr-rsa_calculator
 date: 2018-03-14 12:59:32
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 读代码题，虽然是逆向代码，哈哈。这道题得细心找，不能急，否则就得像我一样花了很长时间在`printf`的漏洞利用上了，悲催。

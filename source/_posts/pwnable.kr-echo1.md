@@ -3,6 +3,7 @@ title: pwnable.kr-echo1
 date: 2018-03-06 14:00:30
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 简单的栈溢出题目。

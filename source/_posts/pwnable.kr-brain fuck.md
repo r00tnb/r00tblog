@@ -3,6 +3,7 @@ title: pwnable.kr-brain fuck
 date: 2018-02-25 10:58:05
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题就有点pwn的意思了嘛

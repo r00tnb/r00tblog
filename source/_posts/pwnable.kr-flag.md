@@ -3,6 +3,7 @@ title: pwnable.kr-flag
 date: 2017-12-09 12:07:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这是一道Linux逆向题，题目很简单，但是对于我这样的新手来说还是纠结了一会儿，嘿嘿~

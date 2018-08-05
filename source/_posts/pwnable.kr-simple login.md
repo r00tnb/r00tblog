@@ -3,6 +3,7 @@ title: pwnable.kr-simple login
 date: 2018-02-25 22:24:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 其实是一道很简单的栈溢出题目，但是我在分析代码的时候却浪费了不少时间，主要是没注意linux下`base64`命令在编码时会主动加上换行符`\n`的base64编码，导致逻辑分析错误，教训啊。

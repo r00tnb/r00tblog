@@ -3,6 +3,7 @@ title: pwnable.kr-collision
 date: 2017-12-08 12:55:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 分析
 查看源码`col.c`

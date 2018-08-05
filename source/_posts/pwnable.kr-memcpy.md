@@ -3,6 +3,7 @@ title: pwnable.kr-memcpy
 date: 2018-02-13 14:43:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题还是参考了别人的writeup，学到了内存对齐的知识。

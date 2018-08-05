@@ -3,6 +3,7 @@ title: pwnable.kr-tiny_easy
 date: 2018-02-26 21:00:19
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 考验漏洞利用能力的题目，长姿势了。参考了别人的[writeup](https://blog.yiz96.com/pwnable-kr-tiny_easy/)

@@ -3,6 +3,7 @@ title: 百度杯CTF比赛 十月场-EXEC
 date: 2018-02-13 20:48:00
 tags: [WEB,SKR]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题本来要用`bash反弹shell`的技术的，但是由于没有公网ip的服务器，我就用了命令盲注的方法，特此记录一下。

@@ -3,6 +3,7 @@ title: pwnable.kr-fix
 date: 2018-02-27 22:46:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 看似简单的改代码题，但是还是需要强大的汇编知识。花了很长时间，主要是自己对指令不是很熟悉。

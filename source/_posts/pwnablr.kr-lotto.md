@@ -3,6 +3,7 @@ title: pwnablr.kr-lotto
 date: 2018-01-26 17:47:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 又是一道很简单的源码阅读题目，考察思路。

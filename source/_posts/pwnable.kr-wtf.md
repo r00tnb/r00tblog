@@ -3,6 +3,7 @@ title: pwnable.kr-wtf
 date: 2018-07-16 16:03:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 一道代码很简单，但是却花了我好长时间的题目。挺有意思的，考察输入缓冲区的。

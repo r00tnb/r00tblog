@@ -3,6 +3,7 @@ title: pwnable.kr-input
 date: 2018-01-12 11:01:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这道题对于我来说挺麻烦，整个题目分了五个阶段，涉及进程通信，socket等内容。对，就是考察linux基础的，但是我得承认我对这些不熟，所以还是查了半天资料做出来的，最后题目还有个大坑。

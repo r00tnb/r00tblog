@@ -3,6 +3,7 @@ title: pwnable.kr-random
 date: 2017-12-10 21:33:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 分析
 还是先分析源码

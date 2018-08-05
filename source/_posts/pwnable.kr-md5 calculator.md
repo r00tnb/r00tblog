@@ -3,6 +3,7 @@ title: pwnable.kr-md5 calculator
 date: 2018-02-25 17:37:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 也是一个很有pwn味道的题目，涉及的知识在掌握范围内所以做起来很爽！

@@ -3,6 +3,7 @@ title: pwnable.kr-asm
 date: 2018-02-14 11:18:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题就是写shellcode的

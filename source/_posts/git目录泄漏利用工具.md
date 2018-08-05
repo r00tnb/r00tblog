@@ -1,8 +1,9 @@
 ---
 title: git目录泄漏利用工具
 date: 2018-01-22 18:42:00
-tags: [WEB,TOOLS]
-categories: 安全工具
+tags: [WEB]
+categories: WEB安全
+copyright: true
 ---
 ## 前言
 说找时间写，今天终于动手来写一波有关漏洞利用工具的博文。

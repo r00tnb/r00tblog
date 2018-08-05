@@ -3,6 +3,7 @@ title: pwnable.kr-cmd3
 date: 2018-07-11 12:18:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这是`cmd2`的升级版，题目做了很多限制，我也是花了好长时间才想出来。

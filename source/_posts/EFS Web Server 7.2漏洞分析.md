@@ -1,8 +1,9 @@
 ---
 title: EFS Web Server 7.2漏洞分析
 date: 2017-12-03 15:45:00
-tags: []
-categories: "二进制漏洞分析"
+tags:
+categories: 二进制漏洞分析
+copyright: true
 ---
 # EFS Web Server 7.2漏洞分析
 
@@ -218,7 +219,7 @@ fsws+0x96600:
 ```
 这是一个sql查询，里面有传入的畸形字符串。而且esp与eax的值很相近，说明sql查询字符串就在栈上，可能就是应为sql查询字符串的拼接导致栈的溢出。回到加载主程序的ida查找`select * from`的字符串
 
-![1](http://img.blog.csdn.net/20170910202318859?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQva29zdGFydDEyMw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+![1](/images/20170910202318859.jpg)
 
 发现有很多这样的字符串，但是跟上面的sql查询语句匹配的只有`select * from %s where %s='%s'`，这里有两处，随便跟进去一处
 ```

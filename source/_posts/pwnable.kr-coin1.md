@@ -3,6 +3,7 @@ title: pwnable.kr-coin1
 date: 2018-01-24 12:07:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这道题考察算法，很简单，用二分发即可。

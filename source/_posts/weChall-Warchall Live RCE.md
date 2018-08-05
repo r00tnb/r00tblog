@@ -3,6 +3,7 @@ title: weChall-Warchall Live RCE
 date: 2017-12-18 20:42:00
 tags: [WEB]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这一题确实以前没见过，怪我见识少咯！这是一道关于php-cgi的题目，要利用其在PHP低版本的公开漏洞`CVE-2012-1823`。

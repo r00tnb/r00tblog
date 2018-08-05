@@ -3,6 +3,7 @@ title: pwnable.kr-crypto1
 date: 2018-04-24 13:21:27
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这虽然不是一道二进制的题目，但是也有足够的pwn味道。

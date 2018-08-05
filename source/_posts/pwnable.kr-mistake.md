@@ -3,6 +3,7 @@ title: pwnable.kr-mistake
 date: 2018-01-17 20:33:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这题其实考察细心，不难。

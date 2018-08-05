@@ -3,6 +3,7 @@ title: pwnable.kr--fd
 date: 2017-12-06 20:28:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 最近在做[pwnable.kr](http://pwnable.kr)上的题目，本来也是新手就准备把解题的思路写下来加深印象。

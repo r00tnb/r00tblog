@@ -1,8 +1,9 @@
 ---
 title: php的sprintf带来的注入隐患
 date: 2018-01-03 19:46:00
-tags: [WEB,PHP,SQL注入]
+tags: [WEB,PHP]
 categories: WEB安全
+copyright: true
 ---
 ## 前言
 php是一门神奇的语言，不同函数的配合不当就有可能造成漏洞。这里记录一下由于`sprintf`和`addslashes`函数配合使用，可能造成的注入漏洞。

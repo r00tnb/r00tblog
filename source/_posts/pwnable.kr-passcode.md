@@ -3,6 +3,7 @@ title: pwnable.kr-passcode
 date: 2017-12-10 21:00:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 分析
 首先读源码`passcode.c`

@@ -3,6 +3,7 @@ title: weChall-Stop us
 date: 2017-12-16 13:50:00
 tags: [WEB]
 categories: CTF
+copyright: true
 ---
 ## 前言
 好吧，我承认这道题我完全没有任何头绪T_T。看了别人的writeup才做出来的，再次让我佩服php语言的博大精深！！！

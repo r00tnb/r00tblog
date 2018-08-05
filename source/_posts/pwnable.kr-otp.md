@@ -3,6 +3,7 @@ title: pwnable.kr-otp
 date: 2018-02-26 10:56:31
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 开始一直在找溢出点哈哈，最后实在没有头绪看了别人的[writeup](http://blog.csdn.net/z231288/article/details/65512472)

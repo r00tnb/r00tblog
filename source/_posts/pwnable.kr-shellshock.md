@@ -3,6 +3,7 @@ title: pwnable.kr-shellshock
 date: 2018-01-24 11:48:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 这题考察著名漏洞的利用，就是当年被评为10级严重的“破壳”漏洞。当时确实不知道，上网搜的。

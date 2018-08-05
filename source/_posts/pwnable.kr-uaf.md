@@ -3,6 +3,7 @@ title: pwnable.kr-uaf
 date: 2018-01-29 21:02:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题有了pwn的味道了，自己虽然以前学习过二进制漏洞方面的知识但是都是windows方面的（还是新手），对于linux系统下的安全机制和一些关键的技术仍然不熟悉，做这道题参考了[别人的writeup](http://blog.csdn.net/qq_20307987/article/details/51511230)，这篇writeup很详细，对我这样的新手来说很友好。

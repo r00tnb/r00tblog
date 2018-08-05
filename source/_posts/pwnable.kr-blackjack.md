@@ -3,6 +3,7 @@ title: pwnable.kr-blackjack
 date: 2018-01-26 11:14:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 ## 前言
 21点是一个很流行的卡牌游戏，网上可以找到它的规则的详细描述。这道题游戏规则类似，但是简化了。

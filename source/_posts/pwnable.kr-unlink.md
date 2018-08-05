@@ -3,6 +3,7 @@ title: pwnable.kr-unlink
 date: 2018-02-21 20:26:00
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这是一道简化了的linux下`malloc`堆溢出漏洞利用。需要理解linux下关于`glibc的堆管理`的相关内容，[参考](http://blog.csdn.net/maokelong95/article/details/51989081#allocated-chunk)

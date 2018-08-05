@@ -3,6 +3,7 @@ title: pwnable.kr-dragon
 date: 2018-02-27 17:37:30
 tags: [pwnable.kr,PWN]
 categories: CTF
+copyright: true
 ---
 # 前言
 这道题找溢出找了半天，游戏也玩了半天，唉最后还是细心读代码找出了漏洞。这是一个c语言不同类型比较隐式转换导致的漏洞，还是有点意思的。
