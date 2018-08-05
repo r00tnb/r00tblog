@@ -121,7 +121,7 @@
 <meta name="keywords" content="pwnable.kr,PWN">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pwnable.kr-uaf">
-<meta property="og:url" content="http://yoursite.com/2018/01/29/pwnable.kr-uaf/index.html">
+<meta property="og:url" content="https://r00tnb.github.io/2018/01/29/pwnable.kr-uaf/index.html">
 <meta property="og:site_name" content="R00tnb&#39;s Blog">
 <meta property="og:description" content="前言这道题有了pwn的味道了，自己虽然以前学习过二进制漏洞方面的知识但是都是windows方面的（还是新手），对于linux系统下的安全机制和一些关键的技术仍然不熟悉，做这道题参考了别人的writeup，这篇writeup很详细，对我这样的新手来说很友好。 分析先分析源码uaf.c12345678910111213141516171819202122232425262728293031323334">
 <meta property="og:locale" content="zh-CN">
@@ -135,7 +135,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/01/29/pwnable.kr-uaf/"/>
+  <link rel="canonical" href="https://r00tnb.github.io/2018/01/29/pwnable.kr-uaf/"/>
 
 
 
@@ -269,11 +269,46 @@
 
       
       
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
     </ul>
   
 
   
 
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
   
 </nav>
 
@@ -315,7 +350,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/29/pwnable.kr-uaf/">
+    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/01/29/pwnable.kr-uaf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="r00tnb">
@@ -493,8 +528,8 @@
   <p><span>文章作者:</span><a href="/" title="访问 r00tnb 的个人博客">r00tnb</a></p>
   <p><span>发布时间:</span>2018年01月29日 - 21:01</p>
   <p><span>最后更新:</span>2018年08月04日 - 22:08</p>
-  <p><span>原始链接:</span><a href="/2018/01/29/pwnable.kr-uaf/" title="pwnable.kr-uaf">http://yoursite.com/2018/01/29/pwnable.kr-uaf/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://yoursite.com/2018/01/29/pwnable.kr-uaf/"  aria-label="复制成功！"></i></span>
+  <p><span>原始链接:</span><a href="/2018/01/29/pwnable.kr-uaf/" title="pwnable.kr-uaf">https://r00tnb.github.io/2018/01/29/pwnable.kr-uaf/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://r00tnb.github.io/2018/01/29/pwnable.kr-uaf/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -515,6 +550,35 @@
       
     </div>
 
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创，您的鼓励是我最大的动力！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.png" alt="r00tnb 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="r00tnb 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
     
 
     
@@ -665,9 +729,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -936,6 +998,19 @@
   
 
 
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=6.3.0"></script>
 
 
 

@@ -121,7 +121,7 @@
 <meta name="keywords" content="WEB,SKR">
 <meta property="og:type" content="article">
 <meta property="og:title" content="百度杯2017二月-Zone">
-<meta property="og:url" content="http://yoursite.com/2018/01/03/百度杯2017二月-Zone/index.html">
+<meta property="og:url" content="https://r00tnb.github.io/2018/01/03/百度杯2017二月-Zone/index.html">
 <meta property="og:site_name" content="R00tnb&#39;s Blog">
 <meta property="og:description" content="前言这道题是我看了官方writeup才做出来的，最后是因为Nginx配置不当导致的漏洞，没错触及到了知识盲区，记录下来。 分析点开题目链接，提示我必须登录。然后我习惯性的拿出burpsuite来抓包，发现Cookie字段中出现了可疑的login=0，于是改为1发送过去，就好啦。1234567891011121314151617181920212223242526272829303132333435">
 <meta property="og:locale" content="zh-CN">
@@ -135,7 +135,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/01/03/百度杯2017二月-Zone/"/>
+  <link rel="canonical" href="https://r00tnb.github.io/2018/01/03/百度杯2017二月-Zone/"/>
 
 
 
@@ -269,11 +269,46 @@
 
       
       
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
     </ul>
   
 
   
 
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
   
 </nav>
 
@@ -315,7 +350,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/03/百度杯2017二月-Zone/">
+    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/01/03/百度杯2017二月-Zone/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="r00tnb">
@@ -492,8 +527,8 @@
   <p><span>文章作者:</span><a href="/" title="访问 r00tnb 的个人博客">r00tnb</a></p>
   <p><span>发布时间:</span>2018年01月03日 - 13:01</p>
   <p><span>最后更新:</span>2018年08月04日 - 22:08</p>
-  <p><span>原始链接:</span><a href="/2018/01/03/百度杯2017二月-Zone/" title="百度杯2017二月-Zone">http://yoursite.com/2018/01/03/百度杯2017二月-Zone/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://yoursite.com/2018/01/03/百度杯2017二月-Zone/"  aria-label="复制成功！"></i></span>
+  <p><span>原始链接:</span><a href="/2018/01/03/百度杯2017二月-Zone/" title="百度杯2017二月-Zone">https://r00tnb.github.io/2018/01/03/百度杯2017二月-Zone/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://r00tnb.github.io/2018/01/03/百度杯2017二月-Zone/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -514,6 +549,35 @@
       
     </div>
 
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创，您的鼓励是我最大的动力！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.png" alt="r00tnb 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="r00tnb 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
     
 
     
@@ -664,9 +728,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -935,6 +997,19 @@
   
 
 
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=6.3.0"></script>
 
 
 
