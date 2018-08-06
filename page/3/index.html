@@ -318,6 +318,200 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/02/07/pwnable.kr-codemap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="努力学习网络安全技术，喜欢二进制，一直努力但进步甚微。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/07/pwnable.kr-codemap/" itemprop="url">
+                  pwnable.kr-codemap
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-02-07 12:53:12" itemprop="dateCreated datePublished" datetime="2018-02-07T12:53:12+08:00">2018-02-07</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-08-04 22:32:31" itemprop="dateModified" datetime="2018-08-04T22:32:31+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/07/pwnable.kr-codemap/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/02/07/pwnable.kr-codemap/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这道题当时理解了逻辑，但是不知道怎么编写调试用的自动化脚本还是参考了别人的写的代码。</p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>ssh连上去后无法读源码，需要逆向<code>codemap.exe</code>。读取<code>readme</code>文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">codemap@ubuntu:~$ cat readme</span><br><span class="line">reverse engineer the <span class="string">'codemap.exe'</span> binary, <span class="keyword">then</span> connect to codemap daemon(nc 0 9021),</span><br><span class="line">the daemon will ask you some question, provide the correct answer to get flag.</span><br></pre></td></tr></table></figure></p>
+<p>nc连上去后要求输入第二和第三大堆块里面的字符串，开始以为问题是随机的，试了几次确定只问了这两个堆块。那么getflag关键就是逆向<code>codemap.exe</code>，下面给出ida反编译的代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// esi@3</span></span><br><span class="line">  <span class="keyword">int</span> (***v4)(<span class="keyword">void</span>); <span class="comment">// eax@3</span></span><br><span class="line">  <span class="keyword">int</span> (***v5)(<span class="keyword">void</span>); <span class="comment">// edi@3</span></span><br><span class="line">  <span class="keyword">int</span> v6; <span class="comment">// esi@4</span></span><br><span class="line">  <span class="keyword">int</span> (**v7)(<span class="keyword">void</span>); <span class="comment">// eax@4</span></span><br><span class="line">  <span class="keyword">int</span> (***v8)(<span class="keyword">void</span>); <span class="comment">// ecx@5</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v9; <span class="comment">// eax@8</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v10; <span class="comment">// esi@8</span></span><br><span class="line">  <span class="keyword">char</span> *v11; <span class="comment">// ebx@8</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v12; <span class="comment">// esi@9</span></span><br><span class="line">  <span class="keyword">char</span> *v14; <span class="comment">// [sp+10h] [bp-60h]@0</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v15; <span class="comment">// [sp+14h] [bp-5Ch]@8</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v16; <span class="comment">// [sp+18h] [bp-58h]@1</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v17; <span class="comment">// [sp+1Ch] [bp-54h]@1</span></span><br><span class="line">  <span class="keyword">char</span> v18; <span class="comment">// [sp+20h] [bp-50h]@9</span></span><br><span class="line">  <span class="keyword">int</span> v19; <span class="comment">// [sp+6Ch] [bp-4h]@3</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"I will make 1000 heap chunks with random size\n"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"each heap chunk has a random string\n"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"press enter to start the memory allocation\n"</span>);</span><br><span class="line">  sub_4040B1();</span><br><span class="line">  v17 = <span class="number">0</span>;</span><br><span class="line">  v16 = <span class="number">0</span>;</span><br><span class="line">  srand(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    v3 = <span class="number">10000</span> * rand() % <span class="number">1337</span>;</span><br><span class="line">    v4 = (<span class="keyword">int</span> (***)(<span class="keyword">void</span>))<span class="keyword">operator</span> <span class="keyword">new</span>(<span class="number">8u</span>);</span><br><span class="line">    v5 = v4;</span><br><span class="line">    v19 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> ( v4 )</span><br><span class="line">    &#123;</span><br><span class="line">      *v4 = (<span class="keyword">int</span> (**)(<span class="keyword">void</span>))&amp;off_40F2EC;</span><br><span class="line">      v6 = (<span class="number">10000</span> * v3 &gt;&gt; <span class="number">1</span>) + <span class="number">123</span>;</span><br><span class="line">      v7 = (<span class="keyword">int</span> (**)(<span class="keyword">void</span>))<span class="keyword">operator</span> <span class="keyword">new</span>(<span class="number">8u</span>);</span><br><span class="line">      <span class="keyword">if</span> ( v7 )</span><br><span class="line">      &#123;</span><br><span class="line">        v7[<span class="number">1</span>] = (<span class="keyword">int</span> (*)(<span class="keyword">void</span>))v6;</span><br><span class="line">        v5[<span class="number">1</span>] = v7;</span><br><span class="line">        v8 = v5;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">      &#123;</span><br><span class="line">        v5[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">        v8 = v5;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      v8 = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    v19 = <span class="number">-1</span>;</span><br><span class="line">    v9 = (**v8)();</span><br><span class="line">    v10 = v9 % <span class="number">0x186A0</span>;</span><br><span class="line">    v15 = v9 % <span class="number">0x186A0</span>;</span><br><span class="line">    v11 = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(v9 % <span class="number">0x186A0</span>);</span><br><span class="line">    <span class="keyword">if</span> ( v10 &gt;= <span class="number">0x10</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      qmemcpy(&amp;v18, <span class="string">"abcdefghijklmnopqrstubwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"</span>, <span class="number">0x3F</span>u);</span><br><span class="line">      v12 = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">do</span></span><br><span class="line">        v11[++v12 - <span class="number">1</span>] = *(&amp;v18 + rand() % <span class="number">62</span>);</span><br><span class="line">      <span class="keyword">while</span> ( v12 &lt; <span class="number">0xF</span> );</span><br><span class="line">      v11[<span class="number">15</span>] = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> ( v15 &gt; v17 )</span><br><span class="line">      &#123;</span><br><span class="line">        v17 = v15;</span><br><span class="line">        v14 = v11;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( ++v16 &gt;= <span class="number">0x3E8</span> )</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    srand(v16);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"the allcated memory size of biggest chunk is %d byte\n"</span>, v17);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"the string inside that chunk is %s\n"</span>, v14);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"log in to pwnable.kr and anwer some question to get flag.\n"</span>);</span><br><span class="line">  sub_4040B1();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>程序大致逻辑是随机生成<code>1000</code>个堆块，并且每个堆块中会存放随机的字符串，最后输出最大的堆块大小和里面的字符串。可以发现程序使用的<code>srand</code>函数的种子都是固定值，那么在使用<code>rand</code>函数的时候就不是真正的随机，所以堆块的大小和字符串都是固定的。<br>按照题目要求，需要给1000个堆块排序找到第二和第三大堆块，这里需要知道每次循环中堆块的大小和字符串存在哪。根据题目提示在<code>0x403E65</code>处下断点并观察<code>ebx,eax</code>可以发现ebx存储的是该堆块的字符串，eax存储的是堆块的大小。<br>但是要获取题目所要的字符串在1000个堆块中找，手找是不可能的，只能用自动化代码。<br>以前看过《Python灰帽子》里面讲的有，但是没好好读现在也没啥印象了，参考<a href="http://blog.csdn.net/pwd_3/article/details/75635647" target="_blank" rel="noopener">这篇writeup的代码</a>用<code>idapython</code>写的<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">from</span> idaapi <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">max_eax = <span class="number">0</span></span><br><span class="line">second_eax = <span class="number">0</span></span><br><span class="line">third_eax = <span class="number">0</span></span><br><span class="line">max_ebx = <span class="number">0</span></span><br><span class="line">second_ebx = <span class="number">0</span></span><br><span class="line">third_ebx = <span class="number">0</span></span><br><span class="line">ft=<span class="number">0</span></span><br><span class="line">sd=<span class="number">0</span></span><br><span class="line">td=<span class="number">0</span></span><br><span class="line"><span class="comment">#AddBpt(0x263E65).text:00403E65（在这一句下断点）jbe     short loc_403E6D</span></span><br><span class="line"><span class="comment">#在题目提示的地方前下一个断点。</span></span><br><span class="line">StartDebugger(<span class="string">""</span>,<span class="string">""</span>,<span class="string">""</span>)<span class="comment">#启动具有默认参数的调试器</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> count <span class="keyword">in</span> xrange(<span class="number">999</span>): </span><br><span class="line">    code = GetDebuggerEvent(WFNE_SUSP|WFNE_CONT, <span class="number">-1</span>) <span class="comment"># 恢复执行，等待断点</span></span><br><span class="line">    eax = GetRegValue(<span class="string">"EAX"</span>)</span><br><span class="line">    ebx = GetRegValue(<span class="string">"EBX"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> max_eax &lt; eax :</span><br><span class="line">        td=sd</span><br><span class="line">        sd=ft</span><br><span class="line">        ft=count</span><br><span class="line">        third_eax = second_eax</span><br><span class="line">        third_ebx = second_ebx</span><br><span class="line">        second_eax = max_eax</span><br><span class="line">        second_ebx = max_ebx</span><br><span class="line">        max_eax = eax;  </span><br><span class="line">        max_ebx = ebx;  </span><br><span class="line">    <span class="keyword">elif</span> second_eax &lt; eax :</span><br><span class="line">        td=sd</span><br><span class="line">        sd=count</span><br><span class="line">        third_eax = second_eax</span><br><span class="line">        third_ebx = second_ebx</span><br><span class="line">        second_eax = eax</span><br><span class="line">        second_ebx = ebx</span><br><span class="line">    <span class="keyword">elif</span> third_eax &lt; eax:</span><br><span class="line">        td=count</span><br><span class="line">        third_eax = eax</span><br><span class="line">        third_ebx = ebx</span><br><span class="line">Message(<span class="string">"max eax: %d, ebx: %x, count %d, second eax: %d, ebx: %x, count %d, third eax: %d, ebx: %x, count %d\n"</span> % (max_eax, max_ebx, ft, second_eax, second_ebx, sd, third_eax, third_ebx, td))</span><br></pre></td></tr></table></figure></p>
+<p>最后输出<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">max eax: <span class="number">99879</span>, ebx: <span class="number">2</span>aa3108, str: X12nM7yCJcu0x5u, count <span class="number">546</span>,</span><br><span class="line">second eax: <span class="number">99679</span>, ebx: <span class="number">1e22658</span>, str: roKBkoIZGMUKrMb, count <span class="number">290</span>, </span><br><span class="line">third eax: <span class="number">99662</span>, ebx: <span class="number">2</span>ec5b40, str: <span class="number">2</span>ckbnDUabcsMA2s, count <span class="number">629</span></span><br></pre></td></tr></table></figure></p>
+<p>回答问题成功getflag<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">codemap@ubuntu:~$ nc 0 9021</span><br><span class="line">What is the string inside 2nd biggest chunk? :</span><br><span class="line">roKBkoIZGMUKrMb</span><br><span class="line">Wait <span class="keyword">for</span> 10 seconds to prevent brute-forcing...</span><br><span class="line">What is the string inside 3rd biggest chunk? :</span><br><span class="line">2ckbnDUabcsMA2s</span><br><span class="line">Wait <span class="keyword">for</span> 10 seconds to prevent brute-forcing...</span><br><span class="line">Congratz! flag : select_eax_from_trace_order_by_eax_desc_limit_20</span><br><span class="line">codemap@ubuntu:~$</span><br></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>做了这道题我准备去好好在读一遍《Python灰帽子》。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/01/29/pwnable.kr-uaf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2092,197 +2286,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/01/17/pwnable.kr-mistake/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="r00tnb">
-      <meta itemprop="description" content="努力学习网络安全技术，喜欢二进制，一直努力但进步甚微。">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="R00tnb's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/17/pwnable.kr-mistake/" itemprop="url">
-                  pwnable.kr-mistake
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-01-17 20:33:00" itemprop="dateCreated datePublished" datetime="2018-01-17T20:33:00+08:00">2018-01-17</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-08-04 22:32:31" itemprop="dateModified" datetime="2018-08-04T22:32:31+08:00">2018-08-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/01/17/pwnable.kr-mistake/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/01/17/pwnable.kr-mistake/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这题其实考察细心，不难。</p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>还是先贴代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PW_LEN 10</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> XORKEY 1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">xor</span><span class="params">(<span class="keyword">char</span>* s, <span class="keyword">int</span> len)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;len; i++)&#123;</span><br><span class="line">		s[i] ^= XORKEY;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">int</span> fd;</span><br><span class="line">	<span class="keyword">if</span>(fd=open(<span class="string">"/home/mistake/password"</span>,O_RDONLY,<span class="number">0400</span>) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"can't open password %d\n"</span>, fd);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"do not bruteforce...\n"</span>);</span><br><span class="line">	sleep(time(<span class="number">0</span>)%<span class="number">20</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">char</span> pw_buf[PW_LEN+<span class="number">1</span>];</span><br><span class="line">	<span class="keyword">int</span> len;</span><br><span class="line">	<span class="keyword">if</span>(!(len=read(fd,pw_buf,PW_LEN) &gt; <span class="number">0</span>))&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"read error\n"</span>);</span><br><span class="line">		close(fd);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">char</span> pw_buf2[PW_LEN+<span class="number">1</span>];</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"input password : "</span>);</span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">"%10s"</span>, pw_buf2);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// xor your input</span></span><br><span class="line">	xor(pw_buf2, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(!<span class="built_in">strncmp</span>(pw_buf, pw_buf2, PW_LEN))&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Password OK\n"</span>);</span><br><span class="line">		system(<span class="string">"/bin/cat flag\n"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Wrong Password\n"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	close(fd);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>题目逻辑很简单，只要从<code>password</code>文件中读取的数据跟输入的数据的异或加密后的结果相等，就会得到flag。<br>但是整个逻辑如果不细心，就不会发现错误，就真的如我上面所想像的逻辑了。<br>根据题目提示：运算符优先级。可以看到open函数直接跟小于号与零比较，由于c语言中小于号优先级高于赋值的等号，又由于这里open函数会返回大于零的值，那么先进行比较运算返回逻辑假值，在c语言中就是0，所以fd的值就是0。<br>知道了这些，那么后面的read调用就会从标准输入中读取值，那么两个值就都在控制之中了，于是就能getflag了。要注意第二次输入要进行异或加密。<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mistake@ubuntu:~$ ./mistake </span><br><span class="line"><span class="keyword">do</span> not bruteforce...</span><br><span class="line"><span class="number">1234567890</span></span><br><span class="line">input password : <span class="number">0325476981</span></span><br><span class="line">Password OK</span><br><span class="line">Mommy, the operator priority always confuses me :(</span><br><span class="line">mistake@ubuntu:~$</span><br></pre></td></tr></table></figure></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这题当时纠结了一会儿，确实要细心，安全漏洞总会发生在最容易忽略的地方，要时刻保持细心。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2330,7 +2333,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2464,7 +2467,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共51.3k字</span>
+  <span class="post-count">博客全站共51.9k字</span>
 </div>
         
 <div class="busuanzi-count">

